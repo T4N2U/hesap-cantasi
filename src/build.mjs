@@ -193,12 +193,76 @@ ${faqHtml(faq)}
   layout({ path: kiraPath(v), title: `${kStr(v)} TL Kira Ne Kadar Olur? ${kNow.ay} Kira Artışı`, description: `${kNow.ay} kira artış oranı %${fmt(kNow.oran)} ile ${kStr(v)} TL kira en fazla ${tl(r.yeni)} olur. Önceki aylarla karşılaştırma tablosu.`, body, schema: [faqSchema(faq)], crumbs: [{ name: 'Kira artış hesaplama', path: '/kira-artis-hesaplama/' }, { name: `${kStr(v)} TL kira`, path: kiraPath(v) }] });
 }
 
+// ---------- Programmatic: kıdem tazminatı by salary ----------
+const kidemAmounts = [];
+for (let v = 35000; v <= 70000; v += 2500) kidemAmounts.push(v);
+for (let v = 75000; v <= 150000; v += 5000) kidemAmounts.push(v);
+const kidemPath = (v) => `/kidem-tazminati/${v}-tl-maas-kidem-tazminati/`;
+const tavanNow = P.kidemTavan.at(-1);
+const kidemYears = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30];
+for (const v of kidemAmounts) {
+  const esas = Math.min(v, tavanNow.tutar);
+  const rows = kidemYears.map((y) => { const b = esas * y; return `<tr><td>${y} yıl</td><td>${fmt(b)}</td><td>${fmt(b * P.damga)}</td><td><b>${fmt(b * (1 - P.damga))}</b></td></tr>`; }).join('');
+  const y5 = esas * 5 * (1 - P.damga), y10 = esas * 10 * (1 - P.damga);
+  const capped = v > tavanNow.tutar;
+  const faq = [
+    [`${kStr(v)} TL maaşla 5 yıl çalışan ne kadar kıdem tazminatı alır?`, `Yaklaşık ${tl(y5)} net (damga vergisi düşülmüş).${capped ? ` Brüt ücret tavanı aştığı için ${tl(tavanNow.tutar)} esas alınır.` : ''}`],
+    [`${kStr(v)} TL maaşla 10 yıl çalışan ne kadar alır?`, `Yaklaşık ${tl(y10)} net.`],
+    ['Yan haklar hesaba katılır mı?', 'Evet. Düzenli ödenen yemek, yol, ikramiye gibi yan haklar brüt ücrete eklenerek giydirilmiş ücret bulunur. Bu tablo yalnızca brüt maaşı esas alır.'],
+  ];
+  const body = `<span class="stamp">Tavan ${tl(tavanNow.tutar)} · Güncellendi: ${trDate(P.updated)}</span>
+<h1>${kStr(v)} TL maaşla kıdem tazminatı ne kadar? (${P.year})</h1>
+<p class="lead">${kStr(v)} TL brüt maaşla her tam çalışma yılı için <b>${tl(esas * (1 - P.damga))}</b> net kıdem tazminatı hesaplanır${capped ? ` (maaş tavanı aştığından ${tl(tavanNow.tutar)} esas alınır)` : ''}. 5 yılda ${tl(y5)}, 10 yılda ${tl(y10)}.</p>
+<div class="grid"><div>
+<div class="card"><div class="summary"><div class="kv strong"><span>Yıl başına net tazminat</span><b>${tl(esas * (1 - P.damga))}</b></div><div class="kv"><span>Esas alınan ücret</span><b>${tl(esas)}${capped ? ' (tavan)' : ''}</b></div><div class="kv"><span>Geçerli tavan</span><b>${tl(tavanNow.tutar)}</b></div></div>
+<p class="note"><a href="/kidem-tazminati-hesaplama/?brut=${v}">Giriş–çıkış tarihinizle tam hesaplayın →</a></p></div>
+${adSlot('prog-top')}
+<h2>Çalışma süresine göre ${kStr(v)} TL maaşın kıdem tazminatı</h2>
+<div class="tablewrap"><table><thead><tr><th>Süre</th><th>Brüt</th><th>Damga V.</th><th>Net</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="note">Ay ve günler orantılı eklenir. Tablo ${trDate(tavanNow.from)} – ${trDate(tavanNow.to)} tavanıyla hesaplanmıştır.</p>
+${faqHtml(faq)}
+<h2>Yakın tutarlar</h2><ul class="links">${nearby(kidemAmounts, v, kidemPath)}</ul>
+</div>${sidebar('', '')}</div>`;
+  layout({ path: kidemPath(v), title: `${kStr(v)} TL Maaşla Kıdem Tazminatı Ne Kadar? ${P.year} Tablo`, description: `${kStr(v)} TL brüt maaşla 1–30 yıl kıdem tazminatı tablosu. Yıl başına net ${tl(esas * (1 - P.damga))}, güncel tavan ${tl(tavanNow.tutar)}.`, body, schema: [faqSchema(faq)], crumbs: [{ name: 'Kıdem tazminatı', path: '/kidem-tazminati-hesaplama/' }, { name: `${kStr(v)} TL maaş`, path: kidemPath(v) }] });
+}
+
+// ---------- Programmatic: kredi taksit tables by amount ----------
+const krediAmounts = [25000, 50000, 75000, 100000, 125000, 150000, 200000, 250000, 300000, 400000, 500000, 750000, 1000000];
+const krediPath = (v) => `/kredi/${v}-tl-kredi-taksit-hesaplama/`;
+const vadeler = [6, 12, 18, 24, 36];
+const faizler = [2.5, 3, 3.5, 4, 4.5];
+for (const v of krediAmounts) {
+  const head = `<tr><th>Aylık faiz</th>${vadeler.map((n) => `<th>${n} ay</th>`).join('')}</tr>`;
+  const rows = faizler.map((f) => `<tr><td>%${fmt(f)}</td>${vadeler.map((n) => `<td>${fmt(E.kredi({ tutar: v, vade: n, aylikFaiz: f, tur: 'ihtiyac' }).taksit)}</td>`).join('')}</tr>`).join('');
+  const ex = E.kredi({ tutar: v, vade: 24, aylikFaiz: 3.5, tur: 'ihtiyac' });
+  const exK = E.kredi({ tutar: v, vade: 12, aylikFaiz: 3.5, tur: 'ihtiyac' });
+  const faq = [
+    [`${kStr(v)} TL kredinin 12 ay taksiti ne kadar?`, `Aylık %3,50 faizle, KKDF ve BSMV dahil yaklaşık ${tl(exK.taksit)}. Toplam geri ödeme ${tl(exK.toplam)}.`],
+    [`${kStr(v)} TL kredinin 24 ay taksiti ne kadar?`, `Aylık %3,50 faizle, KKDF ve BSMV dahil yaklaşık ${tl(ex.taksit)}. Toplam geri ödeme ${tl(ex.toplam)}.`],
+    ['Tablodaki taksitlere vergiler dahil mi?', 'Evet. İhtiyaç kredisi için faiz üzerinden %15 KKDF ve %15 BSMV eklenmiştir. Dosya masrafı ve sigorta dahil değildir.'],
+  ];
+  const body = `<span class="stamp">KKDF + BSMV dahil · Güncellendi: ${trDate(P.updated)}</span>
+<h1>${kStr(v)} TL kredi taksit hesaplama</h1>
+<p class="lead">${kStr(v)} TL ihtiyaç kredisinin aylık %3,50 faizle 24 ay taksiti yaklaşık <b>${tl(ex.taksit)}</b>, 12 ay taksiti ${tl(exK.taksit)} (KKDF ve BSMV dahil). Farklı faiz ve vadeler için tabloya bakın.</p>
+<div class="grid"><div>
+<div class="card"><div class="summary"><div class="kv strong"><span>24 ay taksit (%3,50)</span><b>${tl(ex.taksit)}</b></div><div class="kv"><span>Toplam geri ödeme</span><b>${tl(ex.toplam)}</b></div><div class="kv"><span>Faiz + vergiler</span><b>${tl(ex.maliyet)}</b></div></div>
+<p class="note"><a href="/kredi-hesaplama/?tutar=${v}">Bankanızın faiz oranıyla ödeme planı çıkarın →</a></p></div>
+${adSlot('prog-top')}
+<h2>${kStr(v)} TL ihtiyaç kredisi taksit tablosu</h2>
+<div class="tablewrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+<p class="note">Aylık taksitler (₺), KKDF %15 ve BSMV %15 dahil. Konut kredisinde bu vergiler alınmaz; taksit daha düşük olur.</p>
+${faqHtml(faq)}
+<h2>Diğer kredi tutarları</h2><ul class="links">${krediAmounts.filter((x) => x !== v).map((x) => `<li><a href="${krediPath(x)}">${kStr(x)} TL kredi</a></li>`).join('')}</ul>
+</div>${sidebar('', '')}</div>`;
+  layout({ path: krediPath(v), title: `${kStr(v)} TL Kredi Taksit Hesaplama – 6, 12, 24, 36 Ay Tablosu`, description: `${kStr(v)} TL ihtiyaç kredisinin 6–36 ay taksitleri, farklı faiz oranlarıyla. KKDF ve BSMV dahil; 24 ay %3,50 ile ${tl(ex.taksit)}.`, body, schema: [faqSchema(faq)], crumbs: [{ name: 'Kredi hesaplama', path: '/kredi-hesaplama/' }, { name: `${kStr(v)} TL kredi`, path: krediPath(v) }] });
+}
+
 // ---------- Hubs ----------
 const hubLinks = (title, arr, mk, suffix) => `<h2>${title}</h2><ul class="links">${arr.map((x) => `<li><a href="${mk(x)}">${kStr(x)} TL ${suffix}</a></li>`).join('')}</ul>`;
 layout({
   path: '/tum-hesaplamalar/', title: `Tüm Hesaplama Araçları | ${SITE.name}`, description: 'Maaş, tazminat, kira, kredi, mevduat, KDV ve günlük hesaplamaların tam listesi.',
   body: `<h1>Tüm hesaplamalar</h1><div class="tiles">${CALCULATORS.map((c) => `<a class="tile" href="${c.path}"><b>${c.short}</b><span>${c.tile}</span></a>`).join('')}${INFO_PAGES.map((c) => `<a class="tile" href="${c.path}"><b>${c.short}</b><span>${c.tile}</span></a>`).join('')}</div>
-${hubLinks('Brütten nete maaş tabloları', brutAmounts, brutPath, 'brüt')}${hubLinks('Netten brüte maaş tabloları', netAmounts, netPath, 'net')}${hubLinks('Kira artışı tabloları', kiraAmounts, kiraPath, 'kira')}`,
+${hubLinks('Brütten nete maaş tabloları', brutAmounts, brutPath, 'brüt')}${hubLinks('Netten brüte maaş tabloları', netAmounts, netPath, 'net')}${hubLinks('Kira artışı tabloları', kiraAmounts, kiraPath, 'kira')}${hubLinks('Kıdem tazminatı tabloları', kidemAmounts, kidemPath, 'maaş')}${hubLinks('Kredi taksit tabloları', krediAmounts, krediPath, 'kredi')}`,
   crumbs: [{ name: 'Tüm hesaplamalar', path: '/tum-hesaplamalar/' }],
 });
 
@@ -217,6 +281,7 @@ layout({
 <div class="tiles">${CALCULATORS.map((c) => `<a class="tile" href="${c.path}"><b>${c.short}</b><span>${c.tile}</span></a>`).join('')}</div>
 ${adSlot('home')}
 <h2>Popüler maaş sorguları</h2><ul class="links">${[40000, 50000, 60000, 75000, 100000, 150000].map((v) => `<li><a href="${brutPath(v)}">${kStr(v)} TL brüt kaç net?</a></li>`).join('')}${[35000, 40000, 50000, 60000, 80000, 100000].map((v) => `<li><a href="${netPath(v)}">${kStr(v)} TL net kaç brüt?</a></li>`).join('')}</ul>
+<h2>Popüler kıdem ve kredi sorguları</h2><ul class="links">${[40000, 50000, 60000, 75000, 100000].map((v) => `<li><a href="${kidemPath(v)}">${kStr(v)} TL maaşla kıdem tazminatı</a></li>`).join('')}${[50000, 100000, 200000, 500000].map((v) => `<li><a href="${krediPath(v)}">${kStr(v)} TL kredi taksiti</a></li>`).join('')}</ul>
 <h2>Popüler kira sorguları</h2><ul class="links">${[10000, 15000, 20000, 25000, 30000, 40000].map((v) => `<li><a href="${kiraPath(v)}">${kStr(v)} TL kira ne kadar olur?</a></li>`).join('')}</ul>`,
 });
 

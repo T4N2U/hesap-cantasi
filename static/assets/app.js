@@ -93,6 +93,33 @@ const CALCS = {
     if (!r) return err('İkinci tarih birinciden sonra olmalı.');
     return `<div class="summary">${row('Toplam gün', fmt(r.toplamGun, 0) + ' gün', true)}${row('Yıl / ay / gün', `${r.yil} yıl ${r.ay} ay ${r.gun} gün`)}${row('Hafta', fmt(r.hafta, 0) + ' hafta')}</div>`;
   },
+  issizlik(f) {
+    const ort = num(f.brut.value), gun = num(f.gun.value);
+    if (!(ort > 0) || !(gun >= 0)) return err('Ortalama brüt ücreti ve prim gününü girin.');
+    const r = E.issizlik({ ortalamaBrut: ort, primGun: gun });
+    if (!r.sureGun) return err('İşsizlik ödeneği için son 3 yılda en az 600 gün prim gerekir.');
+    return `<div class="summary">${row('Aylık net işsizlik maaşı', tl(r.net), true)}${row('Ödeme süresi', `${r.sureGun} gün (${r.sureAy} ay)`)}${row('Toplam alınacak (yaklaşık)', tl(r.toplam))}${row('Aylık brüt ödenek', tl(r.brut) + (r.tavanUygulandi ? ' (tavan)' : ''))}${row('Damga vergisi', tl(r.damga))}</div>`;
+  },
+  mesai(f) {
+    const brut = num(f.brut.value), saat = num(f.saat.value);
+    if (!(brut > 0) || !(saat > 0)) return err('Brüt maaşı ve mesai saatini girin.');
+    const r = E.fazlaMesai({ brut, saat, tip: f.tip.value });
+    return `<div class="summary">${row('Brüt fazla mesai ücreti', tl(r.toplam), true)}${row('Saatlik brüt ücret', tl(r.saatlik))}${row(`Saatlik mesai ücreti (×${fmt(r.carpan)})`, tl(r.saatlikMesai))}</div>${saat > 270 ? '<p class="note">Yıllık fazla çalışma 270 saati geçemez.</p>' : ''}`;
+  },
+  tapu(f) {
+    const bedel = num(f.bedel.value);
+    if (!(bedel > 0)) return err('Satış bedelini girin.');
+    const r = E.tapuHarci({ bedel });
+    return `<div class="summary">${row('Alıcının ödeyeceği harç', tl(r.alici), true)}${row('Satıcının ödeyeceği harç', tl(r.satici))}${row('Toplam tapu harcı', tl(r.toplam))}</div><p class="note">Döner sermaye ücreti ayrıca alınır. Beyan edilen bedel emlak vergisi değerinin altında olamaz.</p>`;
+  },
+  zam(f) {
+    const eski = num(f.eski.value), yeni = num(f.yeni.value), oran = num(f.oran.value);
+    if (!(eski > 0)) return err('Mevcut tutarı girin.');
+    const out = [];
+    if (isFinite(yeni) && yeni > 0) { const r = E.zam({ eski, yeni }); out.push(row('Zam oranı', '%' + fmt(r.oran), true), row('Artış tutarı', tl(r.fark))); }
+    if (isFinite(oran)) { const r = E.zam({ eski, oran }); out.push(row(`%${fmt(oran)} zamla yeni tutar`, tl(r.yeni), true), row('Artış tutarı', tl(r.fark))); }
+    return out.length ? `<div class="summary">${out.join('')}</div>` : err('Yeni tutarı veya zam oranını girin.');
+  },
   yas(f) {
     const today = new Date().toISOString().slice(0, 10);
     const r = E.tarihFarki(f.dogum.value, f.bugun.value || today);

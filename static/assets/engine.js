@@ -239,5 +239,37 @@ export function tarihFarki(a, b) {
   return { ...s, hafta: Math.floor(s.toplamGun / 7) };
 }
 
+// İşsizlik ödeneği (4447 m.50): son 4 ay brüt ortalamasının %40'ı, brüt asgari ücretin %80'ini geçemez; yalnız damga vergisi.
+export function issizlik({ ortalamaBrut, primGun }) {
+  const P = PARAMS;
+  const brut = Math.min(ortalamaBrut * 0.4, P.asgariBrut * 0.8);
+  const damga = brut * P.damga;
+  const sure = primGun >= 1080 ? 300 : primGun >= 900 ? 240 : primGun >= 600 ? 180 : 0;
+  return {
+    brut: r2(brut), damga: r2(damga), net: r2(brut - damga), sureGun: sure, sureAy: sure / 30,
+    toplam: r2((brut - damga) * sure / 30), tavanUygulandi: ortalamaBrut * 0.4 > P.asgariBrut * 0.8,
+    enAz: r2(P.asgariBrut * 0.4 * (1 - P.damga)), enCok: r2(P.asgariBrut * 0.8 * (1 - P.damga)),
+  };
+}
+
+// Fazla mesai (4857 m.41): saatlik brüt = aylık brüt / 225; fazla çalışma %50, fazla sürelerle çalışma %25 zamlı.
+export function fazlaMesai({ brut, saat, tip = 'fazla' }) {
+  const saatlik = brut / 225;
+  const carpan = tip === 'sure' ? 1.25 : 1.5;
+  const saatlikMesai = saatlik * carpan;
+  return { saatlik: r2(saatlik), carpan, saatlikMesai: r2(saatlikMesai), toplam: r2(saatlikMesai * saat), yillikSinir: 270 };
+}
+
+// Tapu harcı (492 s. Kanun): alıcı ve satıcı ayrı ayrı %2.
+export function tapuHarci({ bedel }) {
+  const h = bedel * 0.02;
+  return { alici: r2(h), satici: r2(h), toplam: r2(h * 2) };
+}
+
+export function zam({ eski, yeni, oran }) {
+  if (oran != null && isFinite(oran)) { const y = eski * (1 + oran / 100); return { eski: r2(eski), yeni: r2(y), fark: r2(y - eski), oran: r2(oran) }; }
+  return { eski: r2(eski), yeni: r2(yeni), fark: r2(yeni - eski), oran: r2((yeni - eski) / eski * 100) };
+}
+
 export const fmt = (n, d = 2) => (isFinite(n) ? n.toLocaleString('tr-TR', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—');
 export const tl = (n) => fmt(n) + ' ₺';

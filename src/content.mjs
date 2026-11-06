@@ -78,6 +78,55 @@ ${go}</form>`,
     ],
   },
   {
+    path: '/issizlik-maasi-hesaplama/', short: 'İşsizlik maaşı', tile: `${tl(E.issizlik({ ortalamaBrut: P.asgariBrut, primGun: 600 }).net)} – ${tl(E.issizlik({ ortalamaBrut: 1e9, primGun: 600 }).net)}`,
+    h1: `İşsizlik maaşı hesaplama ${Y}`,
+    title: `İşsizlik Maaşı Hesaplama ${Y} – Ne Kadar ve Kaç Ay Alırım?`,
+    description: `${Y} işsizlik maaşı en az ${tl(E.issizlik({ ortalamaBrut: P.asgariBrut, primGun: 600 }).net)}, en çok ${tl(E.issizlik({ ortalamaBrut: 1e9, primGun: 600 }).net)}. Son 4 ay brüt ücretinize ve prim gününüze göre aylık tutarı ve süreyi hesaplayın.`,
+    lead: 'Son 4 aydaki ortalama brüt ücretinizi ve son 3 yıldaki prim gün sayınızı girin.',
+    form: `<form class="calc" data-calc="issizlik"><div class="row2">${money('brut', 'Son 4 ay ortalama brüt ücret (₺)', '50.000')}<label>Son 3 yıldaki prim günü<input name="gun" inputmode="numeric" value="900"></label></div>${go}</form>`,
+    content: `<h2>İşsizlik maaşı nasıl hesaplanır?</h2>
+<p>Günlük işsizlik ödeneği, son 4 aylık prime esas kazançların günlük ortalamasının <b>%40'ıdır</b>. Ödenek, brüt asgari ücretin <b>%80'ini</b> geçemez. Ödenekten yalnızca damga vergisi kesilir.</p>
+<h3>Ödeme süreleri</h3><div class="tablewrap"><table><thead><tr><th>Son 3 yılda prim günü</th><th>Ödeme süresi</th></tr></thead><tbody><tr><td>600 gün</td><td>180 gün (6 ay)</td></tr><tr><td>900 gün</td><td>240 gün (8 ay)</td></tr><tr><td>1080 gün</td><td>300 gün (10 ay)</td></tr></tbody></table></div>
+<p>Ayrıca işten ayrılmadan önceki son 120 gün kesintisiz prim ödenmiş olmalı ve iş sözleşmesi çalışanın kusuru dışında sona ermiş olmalıdır. Başvuru, işten ayrılıştan sonra 30 gün içinde İŞKUR'a yapılır.</p>`,
+    faq: [
+      [`${Y} en düşük işsizlik maaşı ne kadar?`, `Brüt asgari ücretin %40'ı üzerinden, damga vergisi düşülerek yaklaşık ${tl(E.issizlik({ ortalamaBrut: P.asgariBrut, primGun: 600 }).net)}.`],
+      [`${Y} en yüksek işsizlik maaşı ne kadar?`, `Brüt asgari ücretin %80'i üzerinden yaklaşık ${tl(E.issizlik({ ortalamaBrut: 1e9, primGun: 600 }).net)}.`],
+      ['İstifa eden işsizlik maaşı alabilir mi?', 'Kural olarak hayır. Haklı nedenle fesih (ücretin ödenmemesi gibi) halinde alınabilir.'],
+    ],
+  },
+  {
+    path: '/fazla-mesai-hesaplama/', short: 'Fazla mesai', tile: 'Saatlik mesai ücreti, %50 / %25 zam',
+    h1: `Fazla mesai ücreti hesaplama ${Y}`,
+    title: `Fazla Mesai Ücreti Hesaplama ${Y} – Saatlik Mesai Ne Kadar?`,
+    description: 'Brüt maaşınıza göre saatlik ücreti ve %50 zamlı fazla mesai ücretini hesaplayın. Asgari ücretli için saatlik mesai ücreti dahil.',
+    lead: 'Aylık brüt ücretinizi ve mesai saatinizi girin.',
+    form: `<form class="calc" data-calc="mesai"><div class="row2">${money('brut', 'Aylık brüt maaş (₺)', '50.000')}<label>Mesai saati<input name="saat" inputmode="decimal" value="10"></label></div>
+<label>Çalışma türü<select name="tip"><option value="fazla">Fazla çalışma (haftalık 45 saat üstü, %50)</option><option value="sure">Fazla sürelerle çalışma (45 saate kadar, %25)</option></select></label>${go}</form>`,
+    content: `<h2>Fazla mesai nasıl hesaplanır?</h2><p>Saatlik brüt ücret, aylık brüt ücretin 225'e bölünmesiyle bulunur. Haftalık 45 saati aşan her saat için bu ücretin <b>%50 fazlası</b> ödenir. Sözleşmede haftalık süre 45 saatin altında belirlenmişse, 45 saate kadar olan fazla süreler için <b>%25 fazlası</b> ödenir. Yıllık fazla çalışma 270 saati geçemez.</p>
+<p>Örneğin ${Y} brüt asgari ücretle saatlik ücret ${tl(E.fazlaMesai({ brut: P.asgariBrut, saat: 1 }).saatlik)}, bir saatlik fazla mesai ücreti ${tl(E.fazlaMesai({ brut: P.asgariBrut, saat: 1 }).saatlikMesai)} olur (brüt).</p>`,
+    faq: [['Fazla mesai ücretinden vergi kesilir mi?', 'Evet. Fazla mesai ücreti maaşa eklenir; SGK, gelir vergisi ve damga vergisi kesintilerine tabidir.'], ['Fazla mesai yerine izin kullanılabilir mi?', 'Çalışan isterse her fazla çalışma saati için 1,5 saat, fazla süreli çalışma saati için 1,25 saat serbest zaman kullanabilir.']],
+  },
+  {
+    path: '/tapu-harci-hesaplama/', short: 'Tapu harcı', tile: 'Alıcı %2 + satıcı %2',
+    h1: `Tapu harcı hesaplama ${Y}`,
+    title: `Tapu Harcı Hesaplama ${Y} – Alıcı ve Satıcı Ne Kadar Öder?`,
+    description: 'Ev, arsa veya iş yeri satışında alıcı ve satıcının ödeyeceği %2 + %2 tapu harcını hesaplayın.',
+    lead: 'Tapuda beyan edilecek satış bedelini girin.',
+    form: `<form class="calc" data-calc="tapu">${money('bedel', 'Satış bedeli (₺)', '3.000.000')}${go}</form>`,
+    content: `<h2>Tapu harcı nasıl hesaplanır?</h2><p>Gayrimenkul satışında tapu harcı, beyan edilen satış bedelinin <b>%2'si alıcıdan, %2'si satıcıdan</b> olmak üzere toplam %4'tür. Taraflar aralarında anlaşarak harcın tamamını birinin ödemesine karar verebilir.</p><p>Beyan edilen bedel, gayrimenkulün emlak vergisi değerinden düşük olamaz. Gerçek satış bedelinin altında beyan, vergi ziyaı cezasına yol açabilir. Tapu harcına ek olarak Tapu ve Kadastro Genel Müdürlüğü'nün belirlediği döner sermaye ücreti ödenir.</p>`,
+    faq: [['Tapu harcını kim öder?', 'Kanuna göre alıcı ve satıcı %2\'şer öder. Uygulamada taraflar farklı paylaşım üzerinde anlaşabilir.']],
+  },
+  {
+    path: '/zam-hesaplama/', short: 'Zam hesaplama', tile: 'Maaş zammı oranı ve yeni maaş',
+    h1: 'Maaş zammı hesaplama',
+    title: 'Zam Hesaplama – Maaş Zammı Yüzde Kaç? Yeni Maaş Ne Kadar?',
+    description: 'Eski ve yeni maaşınıza göre zam oranını veya zam oranına göre yeni maaşınızı hesaplayın.',
+    lead: 'Zam oranını bulmak için yeni tutarı, yeni maaşı bulmak için zam oranını girin.',
+    form: `<form class="calc" data-calc="zam">${money('eski', 'Mevcut maaş (₺)', '40.000')}<div class="row2">${money('yeni', 'Yeni maaş (₺)', '50.000')}${money('oran', 'veya zam oranı (%)', '')}</div>${go}</form>`,
+    content: `<h2>Zam oranı nasıl hesaplanır?</h2><p>Zam oranı = (yeni maaş − eski maaş) ÷ eski maaş × 100. Zammın enflasyonu karşılayıp karşılamadığını görmek için oranı yıllık enflasyonla karşılaştırın.</p><p>Brüt zammın net maaşa etkisini görmek için <a href="/maas-hesaplama/">maaş hesaplama</a> aracını kullanın.</p>`,
+    faq: [],
+  },
+  {
     path: '/kira-artis-hesaplama/', short: 'Kira artışı', tile: `${kNow.ay} oranı: %${fmt(kNow.oran)}`,
     h1: `Kira artış hesaplama (${kNow.ay}: %${fmt(kNow.oran)})`,
     title: `Kira Artış Hesaplama ${kNow.ay} – Yasal Oran %${fmt(kNow.oran)}`,

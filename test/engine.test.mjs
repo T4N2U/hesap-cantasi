@@ -76,4 +76,25 @@ assert.equal(E.yillikIzin({ kidemYil: 16, yas: 40 }).gun, 26);
 assert.equal(E.vki({ kilo: 70, boy: 175 }).vki, 22.9);
 assert.equal(E.tarihFarki('2026-01-01', '2026-12-31').toplamGun, 364);
 
+// İşsizlik — published 2026: en düşük 13.111 TL, en yüksek 26.222 TL (net, rounded)
+const is1 = E.issizlik({ ortalamaBrut: E.PARAMS.asgariBrut, primGun: 600 });
+assert.equal(Math.floor(is1.net), 13111); assert.equal(is1.sureGun, 180);
+assert.ok(Math.abs(is1.enCok - 26222) < 2, 'işsizlik tavan ' + is1.enCok);
+const is2 = E.issizlik({ ortalamaBrut: 60000, primGun: 1100 });
+near(is2.brut, 24000); assert.equal(is2.sureGun, 300);
+// Published example: 60.000 TL ortalama → 23.818 TL
+assert.equal(Math.round(is2.net), 23818);
+assert.equal(E.issizlik({ ortalamaBrut: 40000, primGun: 500 }).sureGun, 0);
+assert.ok(E.issizlik({ ortalamaBrut: 200000, primGun: 900 }).tavanUygulandi);
+
+// Fazla mesai — published: asgari ücret 146,80 TL/saat, mesai 220,20 TL
+const fm = E.fazlaMesai({ brut: 33030, saat: 10 });
+near(fm.saatlik, 146.80); near(fm.saatlikMesai, 220.20); near(fm.toplam, 2202);
+near(E.fazlaMesai({ brut: 33030, saat: 1, tip: 'sure' }).saatlikMesai, 183.50);
+
+// Tapu, zam
+assert.deepEqual(E.tapuHarci({ bedel: 3000000 }), { alici: 60000, satici: 60000, toplam: 120000 });
+assert.equal(E.zam({ eski: 40000, yeni: 50000 }).oran, 25);
+assert.equal(E.zam({ eski: 40000, oran: 30 }).yeni, 52000);
+
 console.log('All engine tests passed');
