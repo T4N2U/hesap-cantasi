@@ -127,7 +127,7 @@ for (const v of brutAmounts) {
 <div class="kv"><span>Yıllık toplam net</span><b>${tl(r.toplam.net)}</b></div>
 <div class="kv"><span>SGK + işsizlik kesintisi (aylık)</span><b>${tl(o.sgk + o.issizlik)}</b></div>
 <div class="kv"><span>İşverene maliyet (teşvikli)</span><b>${tl(o.maliyet)}</b></div></div>
-<p class="note">Farklı bir tutar mı? <a href="/maas-hesaplama/?mod=brut&tutar=${v}">Maaş hesaplama aracında düzenleyin →</a></p></div>
+<p class="note">Farklı bir tutar mı? <a href="/maas-hesaplama/?mod=brut&tutar=${v}">Maaş hesaplama aracında düzenleyin →</a></p><button type="button" class="xls" data-xls="page">⬇ Excel\'e aktar</button></div>
 ${adSlot('prog-top')}
 <h2>${kStr(v)} TL brüt maaşın 12 aylık bordrosu</h2>
 ${bordroTable(r)}
@@ -155,7 +155,7 @@ for (const v of netAmounts) {
 <div class="kv"><span>Aralık brüt maaş</span><b>${tl(last.brut)}</b></div>
 <div class="kv"><span>Yıllık toplam brüt</span><b>${tl(r.toplam.brut)}</b></div>
 <div class="kv"><span>Aylık işveren maliyeti (Ocak)</span><b>${tl(o.maliyet)}</b></div></div>
-<p class="note"><a href="/maas-hesaplama/?mod=net&tutar=${v}">Maaş hesaplama aracında düzenleyin →</a></p></div>
+<p class="note"><a href="/maas-hesaplama/?mod=net&tutar=${v}">Maaş hesaplama aracında düzenleyin →</a></p><button type="button" class="xls" data-xls="page">⬇ Excel\'e aktar</button></div>
 ${adSlot('prog-top')}
 <h2>${kStr(v)} TL net için 12 aylık brüt tablo</h2>
 ${bordroTable(r)}
@@ -183,7 +183,7 @@ for (const v of kiraAmounts) {
 <p class="lead">${kNow.ay} ayında yenilenen sözleşmelerde ${kStr(v)} TL kira, yasal üst sınır olan %${fmt(kNow.oran)} ile en fazla <b>${tl(r.yeni)}</b> olabilir. Aylık artış ${tl(r.artis)}.</p>
 <div class="grid"><div>
 <div class="card"><div class="summary"><div class="kv strong"><span>Yeni kira (en fazla)</span><b>${tl(r.yeni)}</b></div><div class="kv"><span>Aylık artış</span><b>${tl(r.artis)}</b></div><div class="kv"><span>Yıllık ek ödeme</span><b>${tl(r.yillikFark)}</b></div></div>
-<p class="note"><a href="/kira-artis-hesaplama/?kira=${v}">Farklı tutar veya oranla hesaplayın →</a></p></div>
+<p class="note"><a href="/kira-artis-hesaplama/?kira=${v}">Farklı tutar veya oranla hesaplayın →</a></p><button type="button" class="xls" data-xls="page">⬇ Excel\'e aktar</button></div>
 ${adSlot('prog-top')}
 <h2>Aylara göre ${kStr(v)} TL kira artışı</h2>
 <div class="tablewrap"><table><thead><tr><th>Uygulama ayı</th><th>Oran</th><th>Artış</th><th>Yeni kira</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -215,7 +215,7 @@ for (const v of kidemAmounts) {
 <p class="lead">${kStr(v)} TL brüt maaşla her tam çalışma yılı için <b>${tl(esas * (1 - P.damga))}</b> net kıdem tazminatı hesaplanır${capped ? ` (maaş tavanı aştığından ${tl(tavanNow.tutar)} esas alınır)` : ''}. 5 yılda ${tl(y5)}, 10 yılda ${tl(y10)}.</p>
 <div class="grid"><div>
 <div class="card"><div class="summary"><div class="kv strong"><span>Yıl başına net tazminat</span><b>${tl(esas * (1 - P.damga))}</b></div><div class="kv"><span>Esas alınan ücret</span><b>${tl(esas)}${capped ? ' (tavan)' : ''}</b></div><div class="kv"><span>Geçerli tavan</span><b>${tl(tavanNow.tutar)}</b></div></div>
-<p class="note"><a href="/kidem-tazminati-hesaplama/?brut=${v}">Giriş–çıkış tarihinizle tam hesaplayın →</a></p></div>
+<p class="note"><a href="/kidem-tazminati-hesaplama/?brut=${v}">Giriş–çıkış tarihinizle tam hesaplayın →</a></p><button type="button" class="xls" data-xls="page">⬇ Excel\'e aktar</button></div>
 ${adSlot('prog-top')}
 <h2>Çalışma süresine göre ${kStr(v)} TL maaşın kıdem tazminatı</h2>
 <div class="tablewrap"><table><thead><tr><th>Süre</th><th>Brüt</th><th>Damga V.</th><th>Net</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -246,7 +246,7 @@ for (const v of krediAmounts) {
 <p class="lead">${kStr(v)} TL ihtiyaç kredisinin aylık %3,50 faizle 24 ay taksiti yaklaşık <b>${tl(ex.taksit)}</b>, 12 ay taksiti ${tl(exK.taksit)} (KKDF ve BSMV dahil). Farklı faiz ve vadeler için tabloya bakın.</p>
 <div class="grid"><div>
 <div class="card"><div class="summary"><div class="kv strong"><span>24 ay taksit (%3,50)</span><b>${tl(ex.taksit)}</b></div><div class="kv"><span>Toplam geri ödeme</span><b>${tl(ex.toplam)}</b></div><div class="kv"><span>Faiz + vergiler</span><b>${tl(ex.maliyet)}</b></div></div>
-<p class="note"><a href="/kredi-hesaplama/?tutar=${v}">Bankanızın faiz oranıyla ödeme planı çıkarın →</a></p></div>
+<p class="note"><a href="/kredi-hesaplama/?tutar=${v}">Bankanızın faiz oranıyla ödeme planı çıkarın →</a></p><button type="button" class="xls" data-xls="page">⬇ Excel\'e aktar</button></div>
 ${adSlot('prog-top')}
 <h2>${kStr(v)} TL ihtiyaç kredisi taksit tablosu</h2>
 <div class="tablewrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>

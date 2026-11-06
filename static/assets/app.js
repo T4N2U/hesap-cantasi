@@ -138,7 +138,10 @@ function bind(form) {
   const qs = new URLSearchParams(location.search);
   qs.forEach((v, k) => { const el = form.elements[k]; if (el && el.type !== 'checkbox') el.value = v; });
   const run = () => {
-    try { out.innerHTML = fn(form.elements); } catch (e) { out.innerHTML = err('Hesaplanamadı, girdileri kontrol edin.'); console.error(e); }
+    try {
+      out.innerHTML = fn(form.elements);
+      if (out.querySelector('.summary, table')) out.insertAdjacentHTML('beforeend', XLS_BTN);
+    } catch (e) { out.innerHTML = err('Hesaplanamadı, girdileri kontrol edin.'); console.error(e); }
   };
   form.addEventListener('input', run);
   form.addEventListener('change', run);
@@ -154,6 +157,74 @@ function bind(form) {
   }));
   run();
 }
+
+// ---------- Excel export ----------
+const XLS_BTN = '<button type="button" class="xls" data-xls>⬇ Excel\'e aktar</button>';
+let xlsxLoading;
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  xlsxLoading = xlsxLoading || new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = '/assets/vendor/xlsx.mini.min.js';
+    s.onload = () => res(window.XLSX); s.onerror = () => { xlsxLoading = null; rej(new Error('xlsx load failed')); };
+    document.head.appendChild(s);
+  });
+  return xlsxLoading;
+}
+// "40.207,52 ₺" → 40207.52, "%31,23" → 31.23; anything else stays text
+function cellValue(t) {
+  const s = t.replace(/\s+/g, ' ').trim();
+  const m = s.match(/^%?\s*(-?[\d.]+(?:,\d+)?)\s*(₺|TL)?$/);
+  if (!m) return s;
+  const n = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+  return isFinite(n) ? n : s;
+}
+function sheetFrom(XLSX, rows) {
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const widths = [];
+  rows.forEach((r) => r.forEach((c, i) => { widths[i] = Math.max(widths[i] || 8, String(c).length + 2); }));
+  ws['!cols'] = widths.map((w) => ({ wch: Math.min(w, 45) }));
+  Object.keys(ws).forEach((k) => { const c = ws[k]; if (k[0] !== '!' && c.t === 'n' && !Number.isInteger(c.v)) c.z = '#,##0.00'; });
+  return ws;
+}
+async function exportXlsx(root) {
+  const XLSX = await loadXlsx();
+  const wb = XLSX.utils.book_new();
+  const title = (document.querySelector('h1')?.textContent || 'Hesaplama').trim();
+  const summary = [[title], [`${location.hostname} · ${new Date().toLocaleDateString('tr-TR')}`], []];
+  // inputs of the calculator, if any
+  const form = root.closest('.card')?.querySelector('form.calc');
+  if (form) {
+    [...form.querySelectorAll('label')].forEach((l) => {
+      const el = l.querySelector('input:not([type=radio]):not([type=checkbox]), select');
+      if (!el || !el.value) return;
+      const name = (l.querySelector('span')?.textContent || l.childNodes[0]?.textContent || el.name).trim();
+      summary.push([name, el.tagName === 'SELECT' ? el.options[el.selectedIndex].text : cellValue(el.value)]);
+    });
+    const mod = form.querySelector('input[type=radio]:checked');
+    if (mod) summary.push(['Mod', mod.parentElement.textContent.trim()]);
+    summary.push([]);
+  }
+  root.querySelectorAll('.summary .kv').forEach((kv) => summary.push([kv.querySelector('span').textContent.trim(), cellValue(kv.querySelector('b').textContent)]));
+  XLSX.utils.book_append_sheet(wb, sheetFrom(XLSX, summary), 'Özet');
+  [...root.querySelectorAll('table')].forEach((t, i) => {
+    const rows = [...t.rows].map((tr) => [...tr.cells].map((c) => cellValue(c.textContent)));
+    const h = t.closest('.tablewrap')?.previousElementSibling;
+    const name = (h && /^H[23]$/.test(h.tagName) ? h.textContent : (t.closest('details') ? 'Ödeme planı' : `Tablo ${i + 1}`)).replace(/[\\/?*[\]:]/g, '').trim().slice(0, 31).trim();
+    const unique = wb.SheetNames.includes(name) ? `Tablo ${i + 1}` : name;
+    XLSX.utils.book_append_sheet(wb, sheetFrom(XLSX, rows), unique);
+  });
+  const slug = location.pathname.split('/').filter(Boolean).pop() || 'hesaplama';
+  XLSX.writeFile(wb, `${slug}.xlsx`);
+}
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-xls]');
+  if (!b) return;
+  const root = b.dataset.xls === 'page' ? document.querySelector('main') : b.closest('.result');
+  const label = b.textContent; b.disabled = true; b.textContent = 'Hazırlanıyor…';
+  try { await exportXlsx(root); } catch (err2) { console.error(err2); alert('Excel dosyası oluşturulamadı.'); }
+  b.disabled = false; b.textContent = label;
+});
 
 document.querySelectorAll('form.calc').forEach(bind);
 
