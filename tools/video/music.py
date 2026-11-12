@@ -80,15 +80,15 @@ def shaker(L=0.06, seed=2):
 PRESETS = {
     'playful-marimba': dict(bpm=112, swing=0.012, chord_inst=marimba, chord_oct=12, arp=[0, 2, 1, 3, None, 2, 3, 1], arp_gain=.5,
                             lead=marimba, lead_gain=.42, drums='shaker-knock', bass=True),
-    'lofi-piano':      dict(bpm=84, swing=0.05, chord_inst=piano, chord_oct=0, arp='block', arp_gain=.42,
+    'lofi-piano':      dict(bpm=98, swing=0.05, chord_inst=piano, chord_oct=0, arp='block', arp_gain=.42,
                             lead=piano, lead_gain=.36, drums='lofi', bass=True, vinyl=True),
-    'acoustic-pluck':  dict(bpm=100, swing=0.0, chord_inst=pluck, chord_oct=0, arp=[0, 2, 3, 2, 1, 2, 3, 2], arp_gain=.42,
+    'acoustic-pluck':  dict(bpm=104, swing=0.0, chord_inst=pluck, chord_oct=0, arp=[0, 2, 3, 2, 1, 2, 3, 2], arp_gain=.42,
                             lead=pluck, lead_gain=.40, drums='shaker', bass=True),
-    'rhodes-groove':   dict(bpm=96, swing=0.025, chord_inst=rhodes, chord_oct=0, arp=[0, None, None, 1, None, 2, None, None], arp_gain=.5,
+    'rhodes-groove':   dict(bpm=100, swing=0.025, chord_inst=rhodes, chord_oct=0, arp=[0, None, None, 1, None, 2, None, None], arp_gain=.5,
                             lead=rhodes, lead_gain=.36, drums='soft-pop', bass=True),
-    'musicbox-light':  dict(bpm=104, swing=0.0, chord_inst=musicbox, chord_oct=12, arp=[0, 1, 2, 3, 2, 1, 2, 3], arp_gain=.34,
+    'musicbox-light':  dict(bpm=108, swing=0.0, chord_inst=musicbox, chord_oct=12, arp=[0, 1, 2, 3, 2, 1, 2, 3], arp_gain=.34,
                             lead=musicbox, lead_gain=.36, drums=None, bass=False, padbed=True),
-    'soft-pad':        dict(bpm=90, swing=0.0, chord_inst=pad, chord_oct=0, arp='pad', arp_gain=.38,
+    'soft-pad':        dict(bpm=98, swing=0.0, chord_inst=pad, chord_oct=0, arp='pad', arp_gain=.38,
                             lead=musicbox, lead_gain=.30, drums='heartbeat', bass=True),
 }
 
