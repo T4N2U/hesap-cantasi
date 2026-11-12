@@ -266,6 +266,23 @@ export function tapuHarci({ bedel }) {
   return { alici: r2(h), satici: r2(h), toplam: r2(h * 2) };
 }
 
+// Emlak vergisi (1319 s. Kanun m.8, 18): binde oranlar; büyükşehir ve mücavir alanlarda iki katı.
+export const EMLAK_ORAN = {
+  konut: { ad: 'Konut (mesken)', normal: 0.001, buyuksehir: 0.002 },
+  isyeri: { ad: 'İşyeri / diğer bina', normal: 0.002, buyuksehir: 0.004 },
+  arsa: { ad: 'Arsa', normal: 0.003, buyuksehir: 0.006 },
+  arazi: { ad: 'Arazi (tarla, bahçe)', normal: 0.001, buyuksehir: 0.002 },
+};
+// deger: bu yılın vergi değeri; onceki: geçen yılın vergi değeri (2026'da değer 2025'in 3 katını geçemez)
+export function emlakVergisi({ deger, tur = 'konut', buyuksehir = true, hisse = 100, onceki = null, muaf = false }) {
+  const o = EMLAK_ORAN[tur] || EMLAK_ORAN.konut;
+  const oran = buyuksehir ? o.buyuksehir : o.normal;
+  const tavan = onceki > 0 ? onceki * 3 : Infinity;
+  const esas = Math.min(deger, tavan);
+  const yillik = muaf ? 0 : esas * oran * (hisse / 100);
+  return { tur: o.ad, oran, esas: r2(esas), tavanUygulandi: deger > tavan, yillik: r2(yillik), taksit: r2(yillik / 2), muaf };
+}
+
 export function zam({ eski, yeni, oran }) {
   if (oran != null && isFinite(oran)) { const y = eski * (1 + oran / 100); return { eski: r2(eski), yeni: r2(y), fark: r2(y - eski), oran: r2(oran) }; }
   return { eski: r2(eski), yeni: r2(yeni), fark: r2(yeni - eski), oran: r2((yeni - eski) / eski * 100) };

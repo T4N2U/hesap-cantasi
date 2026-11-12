@@ -127,6 +127,36 @@ ${go}</form>`,
     faq: [],
   },
   {
+    path: '/emlak-vergisi-hesaplama/', short: 'Emlak vergisi', tile: 'Konut, işyeri, arsa · taksitler',
+    h1: `Emlak vergisi hesaplama ${Y}`,
+    title: `Emlak Vergisi Hesaplama ${Y} – Konut, İşyeri, Arsa ve Taksit Tutarları`,
+    description: `${Y} emlak vergisini vergi değerinden hesaplayın: konut binde 1 (büyükşehirde binde 2), işyeri, arsa ve arazi oranları, hisse payı ve iki taksit tutarı.`,
+    lead: 'Taşınmazın vergi değerini, türünü ve bulunduğu yeri seçin. Yıllık vergiyi ve iki taksiti görün.',
+    form: `<form class="calc" data-calc="emlak">
+${money('deger', 'Bu yılın vergi değeri (₺) <small>e-Devlet veya belediye beyanı</small>', '4.000.000')}
+<div class="row2"><label>Taşınmaz türü<select name="tur"><option value="konut">Konut (mesken)</option><option value="isyeri">İşyeri / diğer bina</option><option value="arsa">Arsa</option><option value="arazi">Arazi (tarla, bahçe)</option></select></label>
+<label>Bulunduğu yer<select name="yer"><option value="buyuksehir">Büyükşehir / mücavir alan</option><option value="normal">Diğer yerler</option></select></label></div>
+<div class="row2">${money('hisse', 'Hisse payınız (%)', '100')}${money('onceki', 'Geçen yılın vergi değeri (₺) <small>isteğe bağlı, 3 kat sınırı için</small>', '')}</div>
+<label class="check"><input type="checkbox" name="muaf">Muafiyet şartlarını taşıyorum (tek konut, 200 m² altı, emekli/geliri yok vb.)</label>
+${go}</form>`,
+    content: `<h2>Emlak vergisi nasıl hesaplanır?</h2>
+<p>Emlak vergisi = vergi değeri × vergi oranı × hisse payınız. Vergi değeri; binanın metrekare inşaat maliyeti ve bulunduğu yerin arsa (arsa payı) değeri birlikte dikkate alınarak belirlenir. Kendi taşınmazınızın değerini e-Devlet'teki emlak vergisi borç sorgulama ekranından veya belediyenizden öğrenebilirsiniz.</p>
+<h3>Emlak vergisi oranları</h3>
+<div class="tablewrap"><table><thead><tr><th>Taşınmaz</th><th>Diğer yerler</th><th>Büyükşehir / mücavir alan</th></tr></thead><tbody>
+<tr><td>Konut</td><td>binde 1</td><td>binde 2</td></tr><tr><td>İşyeri / diğer bina</td><td>binde 2</td><td>binde 4</td></tr><tr><td>Arsa</td><td>binde 3</td><td>binde 6</td></tr><tr><td>Arazi</td><td>binde 1</td><td>binde 2</td></tr></tbody></table></div>
+<h3>${Y} için 3 kat sınırı</h3>
+<p>2026–2029 dönemi için belirlenen yeni değerlerde, ${Y} yılı vergi değeri 2025 yılı vergi değerinin iki katından fazla artamaz; yani en fazla 3 katı olabilir. Geçen yılın değerini girerseniz araç bu sınırı otomatik uygular. Sonraki yıllarda değer, yeniden değerleme oranına göre güncellenir.</p>
+<h3>Ödeme tarihleri</h3>
+<p>Vergi iki eşit taksitte ödenir: 1. taksit Mart–Mayıs, 2. taksit Kasım ayı sonuna kadar. Geç ödemede aylık gecikme zammı uygulanır. Tapuda satış yapılabilmesi için o yılın vergisinin tamamının ödenmiş olması gerekir.</p>
+<h3>Kimler muaf?</h3>
+<p>Brüt 200 m²'yi geçmeyen tek konutu bulunan ve geliri olmayan, yalnızca emekli aylığı alan, gazi, engelli veya şehit dul ve yetimleri için konut vergisi oranı sıfır uygulanır. Hisseli de olsa başka konutu olanlar yararlanamaz. Muafiyet için belediyeye dilekçe verilmesi gerekir.</p>`,
+    faq: [
+      ['Emlak vergisi değerimi nereden öğrenirim?', 'e-Devlet\'te belediyenizin "Emlak Vergisi Borç Sorgulama" hizmetinden veya belediyenin emlak servisinden öğrenebilirsiniz.'],
+      [`${Y} emlak vergisi 2. taksit ne zaman ödenir?`, 'İkinci taksit Kasım ayının sonuna kadar ödenir.'],
+      ['Büyükşehirde emlak vergisi oranı neden iki kat?', 'Kanuna göre büyükşehir belediye sınırları ve mücavir alanlarda oranlar %100 artırımlı uygulanır.'],
+    ],
+  },
+  {
     path: '/kira-artis-hesaplama/', short: 'Kira artışı', tile: `${kNow.ay} oranı: %${fmt(kNow.oran)}`,
     h1: `Kira artış hesaplama (${kNow.ay}: %${fmt(kNow.oran)})`,
     title: `Kira Artış Hesaplama ${kNow.ay} – Yasal Oran %${fmt(kNow.oran)}`,

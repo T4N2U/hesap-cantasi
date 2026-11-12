@@ -120,6 +120,14 @@ const CALCS = {
     if (isFinite(oran)) { const r = E.zam({ eski, oran }); out.push(row(`%${fmt(oran)} zamla yeni tutar`, tl(r.yeni), true), row('Artış tutarı', tl(r.fark))); }
     return out.length ? `<div class="summary">${out.join('')}</div>` : err('Yeni tutarı veya zam oranını girin.');
   },
+  emlak(f) {
+    const deger = num(f.deger.value), onceki = num(f.onceki.value), hisse = num(f.hisse.value) || 100;
+    if (!(deger > 0)) return err('Vergi değerini girin (e-Devlet veya belediyeden öğrenebilirsiniz).');
+    if (hisse <= 0 || hisse > 100) return err('Hisse oranı 1 ile 100 arasında olmalı.');
+    const r = E.emlakVergisi({ deger, tur: f.tur.value, buyuksehir: f.yer.value === 'buyuksehir', hisse, onceki: onceki > 0 ? onceki : null, muaf: f.muaf.checked });
+    if (r.muaf) return `<div class="summary">${row('Yıllık emlak vergisi', tl(0), true)}</div><p class="note">Muafiyet için belediyeye dilekçe vermeniz gerekir. Şartları aşağıda okuyun.</p>`;
+    return `<div class="summary">${row('Yıllık emlak vergisi', tl(r.yillik), true)}${row('1. taksit (Mart–Mayıs)', tl(r.taksit))}${row('2. taksit (Kasım)', tl(r.taksit))}${row('Vergi oranı', 'binde ' + fmt(r.oran * 1000, 0))}${row('Vergiye esas değer', tl(r.esas) + (r.tavanUygulandi ? ' (3 kat sınırı)' : ''))}</div>`;
+  },
   yas(f) {
     const today = new Date().toISOString().slice(0, 10);
     const r = E.tarihFarki(f.dogum.value, f.bugun.value || today);

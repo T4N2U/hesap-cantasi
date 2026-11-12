@@ -97,4 +97,13 @@ assert.deepEqual(E.tapuHarci({ bedel: 3000000 }), { alici: 60000, satici: 60000,
 assert.equal(E.zam({ eski: 40000, yeni: 50000 }).oran, 25);
 assert.equal(E.zam({ eski: 40000, oran: 30 }).yeni, 52000);
 
+// Emlak vergisi
+assert.equal(E.emlakVergisi({ deger: 5000000, tur: 'konut', buyuksehir: true }).yillik, 10000);
+assert.equal(E.emlakVergisi({ deger: 5000000, tur: 'konut', buyuksehir: false }).yillik, 5000);
+assert.equal(E.emlakVergisi({ deger: 2000000, tur: 'arsa', buyuksehir: true }).yillik, 12000);
+assert.equal(E.emlakVergisi({ deger: 4000000, tur: 'isyeri', buyuksehir: true, hisse: 50 }).taksit, 4000);
+const ev = E.emlakVergisi({ deger: 9000000, tur: 'konut', onceki: 1000000 });
+assert.ok(ev.tavanUygulandi); assert.equal(ev.esas, 3000000); assert.equal(ev.yillik, 6000);
+assert.equal(E.emlakVergisi({ deger: 5000000, muaf: true }).yillik, 0);
+
 console.log('All engine tests passed');
