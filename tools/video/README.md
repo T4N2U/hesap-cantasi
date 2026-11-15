@@ -4,6 +4,7 @@ Scripts that produce the Hesap Çantası YouTube videos. They are not part of th
 
 - `kidem/render.py`: 1920×1080 explainer (PIL frames piped to ffmpeg, one file per scene, joined with concat).
 - `kidem-short/render.py`: 1080×1920 Shorts version, with content kept inside the Shorts UI safe area.
+- `maas/`, `emlak/`, `issizlik/render.py long|short [stills]`: one renderer per topic, each with its own visual variant and a `youtube.md` upload kit.
 - `music.py DURATION OUT.wav PRESET`: original synthesized background music (no samples, no copyright).
 - Add sound: `ffmpeg -i silent.mp4 -i music.wav -map 0:v -map 1:a -c:v copy -af loudnorm=I=-18:TP=-1.5:LRA=11 -c:a aac -b:a 192k -shortest out.mp4` (use `I=-16` for Shorts).
 - Always take figures from `static/assets/engine.js` so videos match the site.
@@ -16,7 +17,7 @@ Only the arrangement changes. Keep it safe: calm tempo, soft attacks, gentle or 
 | Preset | Feel | Used by |
 |---|---|---|
 | `playful-marimba` | bouncy marimba arpeggio, shaker | kıdem tazminatı (long + Short) |
-| `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | |
+| `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | işsizlik maaşı (long + Short) |
 | `acoustic-pluck` | nylon-guitar arpeggio, shaker | maaş: Aralık'ta maaşım neden düşüyor? (long + Short) |
 | `rhodes-groove` | warm electric piano, soft pop beat | emlak vergisi (long + Short) |
 | `musicbox-light` | music box over a pad, no drums | |
