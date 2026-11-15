@@ -1,7 +1,7 @@
 // Site-wide settings. Change these before deploying.
 export const SITE = {
   name: 'Hesap Çantası',
-  url: 'https://www.hesapcantasi.com',   // your final domain, no trailing slash
+  url: 'https://hesapcantasi.com',   // your final domain, no trailing slash
   lang: 'tr',
   description: 'Maaş, kıdem tazminatı, kira artışı, kredi, mevduat ve KDV için güncel ve ücretsiz hesaplama araçları.',
   email: 'iletisim@hesapcantasi.com',
