@@ -304,9 +304,31 @@ export const INFO_PAGES = [
 <tr><td>Brüt asgari ücret</td><td>${tl(P.asgariBrut)}</td></tr><tr><td>SGK işçi payı (%14)</td><td>${tl(a.sgk)}</td></tr><tr><td>İşsizlik sigortası işçi payı (%1)</td><td>${tl(a.issizlik)}</td></tr><tr><td>Gelir vergisi</td><td>0,00 ₺ (istisna)</td></tr><tr><td>Damga vergisi</td><td>0,00 ₺ (istisna)</td></tr><tr><td><b>Net asgari ücret</b></td><td><b>${tl(a.net)}</b></td></tr></tbody></table></div>
 <h2>İşverene maliyeti</h2><div class="tablewrap"><table><tbody><tr><td>5 puan SGK teşvikli</td><td>${tl(a.maliyet)}</td></tr><tr><td>Teşviksiz</td><td>${tl(E.brutNet(P.asgariBrut, { tesvik: false }).aylar[0].maliyet)}</td></tr></tbody></table></div>
 <h2>Asgari ücret vergi istisnası</h2><p>Tüm çalışanların ücretlerinin asgari ücrete isabet eden kısmı gelir vergisi ve damga vergisinden istisnadır. Aylık gelir vergisi istisnası Ocak–Haziran ${tl(asg.aylar[0].gvIstisna)}, Temmuz ${tl(asg.aylar[6].gvIstisna)}, Ağustos–Aralık ${tl(asg.aylar[7].gvIstisna)}'dir. Aylık damga vergisi istisnası ${tl(P.asgariBrut * P.damga)}'dir.</p>
-<p><a href="/maas-hesaplama/">Kendi maaşınızı hesaplayın →</a></p>`;
+<p><a href="/maas-hesaplama/">Kendi maaşınızı hesaplayın →</a> · <a href="/asgari-ucret-${Y + 1}/">${Y + 1} zam senaryoları →</a></p>`;
     },
     faq: [[`${Y} net asgari ücret ne kadar?`, `${tl(P.asgariNet)}.`], [`${Y} brüt asgari ücret ne kadar?`, `${tl(P.asgariBrut)}.`], ['Asgari ücretten vergi kesilir mi?', 'Hayır. Gelir vergisi ve damga vergisi istisnası nedeniyle yalnızca SGK ve işsizlik sigortası primi kesilir.']],
+  },
+  {
+    path: `/asgari-ucret-${Y + 1}/`, short: `Asgari ücret ${Y + 1}`, tile: 'Zam senaryoları: net, brüt, maliyet',
+    h1: `Asgari ücret ${Y + 1}: zam senaryoları`,
+    title: `Asgari Ücret ${Y + 1} – Zam Oranına Göre Net, Brüt ve İşveren Maliyeti`,
+    description: `${Y + 1} asgari ücret ne kadar olur? %15, %20, %25 ve %30 zam senaryolarında net ve brüt asgari ücret ile işverene maliyet tablosu. Resmî rakam açıklanınca güncellenir.`,
+    body: () => {
+      const oranlar = [0.15, 0.20, 0.25, 0.30];
+      const kesinti = P.sgkIsci + P.issizlikIsci;
+      const tes = 1 + P.sgkIsverenTesvik + P.issizlikIsveren, tesYok = 1 + P.sgkIsveren + P.issizlikIsveren;
+      const rows = oranlar.map((o) => { const b = P.asgariBrut * (1 + o); return `<tr><td>%${fmt(o * 100, 0)}</td><td>${tl(b)}</td><td><b>${tl(b * (1 - kesinti))}</b></td><td>+${tl(b * (1 - kesinti) - P.asgariNet)}</td><td>${tl(b * tes)}</td><td>${tl(b * tesYok)}</td></tr>`; }).join('');
+      return `<p class="lead">${Y + 1} asgari ücreti henüz açıklanmadı. Aşağıdaki tablo, ${Y} rakamlarına (brüt ${tl(P.asgariBrut)}, net ${tl(P.asgariNet)}) farklı zam oranları uygulandığında ortaya çıkacak tutarları gösterir. <b>Bunlar senaryodur, resmî rakam değildir.</b> Resmî tutar açıklandığı gün bu sayfa güncellenecektir.</p>
+<h2>Zam oranına göre ${Y + 1} asgari ücret</h2><div class="tablewrap"><table><thead><tr><th>Zam</th><th>Brüt</th><th>Net</th><th>Nete artış</th><th>İşverene maliyet (teşvikli)</th><th>İşverene maliyet (teşviksiz)</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p>Hesaplama ${Y} oranlarıyla yapılmıştır: işçiden SGK %14 ve işsizlik sigortası %1 kesilir; asgari ücret gelir vergisi ve damga vergisinden istisna olduğu için net, brütün %85'idir. İşveren maliyetinde SGK işveren payı (%${fmt(P.sgkIsverenTesvik * 100, 2)} teşvikli, %${fmt(P.sgkIsveren * 100, 2)} teşviksiz) ve %2 işsizlik sigortası işveren payı eklenir. Prim oranları veya teşvikler değişirse tutarlar da değişir.</p>
+<h2>Asgari ücret nasıl belirlenir?</h2><p>Asgari ücret; işçi, işveren ve hükümet temsilcilerinden oluşan Asgari Ücret Tespit Komisyonu tarafından belirlenir ve Resmî Gazete'de yayımlanır. Yeni yıl asgari ücreti genellikle Aralık ayında açıklanır ve 1 Ocak'tan itibaren uygulanır.</p>
+<h2>Asgari ücret zammı maaşımı nasıl etkiler?</h2><p>Asgari ücretin üzerinde maaş alanlarda da vergi istisnası asgari ücretle birlikte artar; bu nedenle brüt maaşınız aynı kalsa bile netiniz bir miktar yükselebilir. Kendi durumunuz için <a href="/maas-hesaplama/">maaş hesaplama</a> ve <a href="/zam-hesaplama/">zam hesaplama</a> araçlarını kullanabilirsiniz. Güncel rakamlar: <a href="/asgari-ucret-${Y}/">asgari ücret ${Y}</a>.</p>`;
+    },
+    faq: [
+      [`${Y + 1} asgari ücret açıklandı mı?`, `Henüz açıklanmadı. Bu sayfadaki tutarlar zam senaryolarıdır; resmî rakam açıklandığında güncellenecektir.`],
+      [`${Y + 1} asgari ücret %25 zamla ne kadar olur?`, `${Y} oranlarıyla brüt ${tl(P.asgariBrut * 1.25)}, net ${tl(P.asgariBrut * 1.25 * (1 - P.sgkIsci - P.issizlikIsci))} olur.`],
+      ['Asgari ücret ne zaman açıklanır?', 'Genellikle Aralık ayında Asgari Ücret Tespit Komisyonu tarafından açıklanır ve 1 Ocak\'tan itibaren geçerli olur.'],
+    ],
   },
   {
     path: `/gelir-vergisi-dilimleri-${Y}/`, short: `Vergi dilimleri ${Y}`, tile: '%15 – %40 ücret tarifesi',
