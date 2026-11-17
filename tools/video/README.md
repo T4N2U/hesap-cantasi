@@ -29,7 +29,7 @@ Record the preset in the table above when a video is made.
 ## Visual style: familiar, not identical
 
 **Always the same (the brand):**
-- the ₺ logo chip and "Hesap Çantası" wordmark, `hesapcantasi.com` on the closing card
+- the logo (briefcase with a keypad front, one gold key: `tools/video/logo.png`, source `static/favicon.svg`) and "Hesap Çantası" wordmark, `hesapcantasi.com` on the closing card. Copy `logo()` and `brand()` from `issizlik/render.py`. Videos before 17 Nov 2026 use the old ₺ chip; leave them.
 - Inter Display typography and type scale; numbers in Turkish format (`408.542,12 ₺`)
 - green `#0f6b4f` as the brand color; a closing card with the page URL
 - numbers that count up, with figures taken from the site's engine

@@ -40,13 +40,13 @@ function layout({ path, title, description, body, schema = [], crumbs = [] }) {
 <link rel="canonical" href="${url}">
 <meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${url}"><meta property="og:site_name" content="${SITE.name}"><meta property="og:locale" content="tr_TR">
 <meta name="theme-color" content="#0f6b4f">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/style.css?v=${VERSION}">
 ${SITE.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}" crossorigin="anonymous"></script>` : ''}
 ${SITE.ga4 ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${SITE.ga4}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${SITE.ga4}');</script>` : ''}
 ${ld}
 </head><body>
-<header class="top"><div class="wrap"><a class="logo" href="/"><i>₺</i>${SITE.name}</a>
+<header class="top"><div class="wrap"><a class="logo" href="/"><img src="/assets/logo.svg?v=${VERSION}" width="30" height="30" alt="">${SITE.name}</a>
 <nav class="main"><a href="/maas-hesaplama/">Maaş</a><a href="/kidem-tazminati-hesaplama/">Kıdem</a><a href="/kira-artis-hesaplama/">Kira</a><a href="/kredi-hesaplama/">Kredi</a><a href="/tum-hesaplamalar/">Tümü</a></nav></div></header>
 <main class="wrap">${crumbHtml}${body}</main>
 <footer><div class="wrap"><div class="fl"><a href="/hakkimizda/">Hakkımızda</a><a href="/iletisim/">İletişim</a><a href="/gizlilik-politikasi/">Gizlilik ve çerezler</a><a href="/kullanim-kosullari/">Kullanım koşulları</a><a href="/tum-hesaplamalar/">Tüm hesaplamalar</a></div>

@@ -77,10 +77,16 @@ def zoom(fr, t, s, center, fn, dur=0.6):
         lay.putalpha(lay.getchannel('A').point(lambda v: int(v * p)))
     fr.im.paste(lay, (0, 0), lay)
 
+_LOGO = {}
+def logo(size):
+    """The channel logo (briefcase with keypad), from tools/video/logo.png."""
+    if size not in _LOGO:
+        _LOGO[size] = Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logo.png')).convert('RGBA').resize((size, size), Image.LANCZOS)
+    return _LOGO[size]
+
 def brand(fr, x, y):
-    d = fr.d
-    d.rounded_rectangle((x, y, x + 52, y + 52), 13, fill=BRAND); T(d, (x + 26, y + 26), '₺', F('b', 32), WHITE, 'mm')
-    T(d, (x + 68, y + 26), 'Hesap Çantası', F('b', 30), INK, 'lm')
+    lg = logo(52); fr.im.paste(lg, (x, y), lg)
+    T(fr.d, (x + 68, y + 26), 'Hesap Çantası', F('b', 30), INK, 'lm')
 
 M = 120 if L else 80
 R = W - M if L else 920
