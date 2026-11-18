@@ -117,6 +117,25 @@ ${go}</form>`,
     faq: [['Tapu harcını kim öder?', 'Kanuna göre alıcı ve satıcı %2\'şer öder. Uygulamada taraflar farklı paylaşım üzerinde anlaşabilir.']],
   },
   {
+    path: '/ikramiye-hesaplama/', short: 'İkramiye hesaplama', tile: 'Brüt ikramiyenin neti ve vergisi',
+    h1: `İkramiye hesaplama ${Y}: net ne kadar kalır?`,
+    title: `İkramiye Hesaplama ${Y} – Brüt İkramiye Net Ne Kadar? Vergi ve SGK Kesintisi`,
+    description: `Brüt ikramiyenizin net tutarını hesaplayın: ödendiği aya göre SGK, gelir vergisi dilimi ve damga vergisi kesintileri. ${Y} parametreleriyle.`,
+    lead: 'Aylık brüt maaşınızı, brüt ikramiye tutarını ve ödeneceği ayı girin.',
+    form: `<form class="calc" data-calc="ikramiye"><div class="row2">${money('brut', 'Aylık brüt maaş (₺)', '75.000')}${money('ikramiye', 'Brüt ikramiye (₺)', '75.000')}</div><label>Ödeneceği ay<select name="ay">${['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'].map((m, i) => `<option value="${i + 1}"${i === 11 ? ' selected' : ''}>${m}</option>`).join('')}</select></label>${go}</form>`,
+    content: () => { const r = E.ikramiye({ brut: 75000, ikramiye: 75000, ay: 12 }); return `<h2>İkramiyeden hangi kesintiler yapılır?</h2>
+<p>İkramiye ödendiği ayın maaşına eklenir ve maaş gibi vergilendirilir: <b>%14 SGK</b> ve <b>%1 işsizlik sigortası</b> primi (SGK tavanına kadar), <b>gelir vergisi</b> ve <b>binde 7,59 damga vergisi</b> kesilir.</p>
+<h3>Gelir vergisi neden yüksek?</h3><p>Gelir vergisi yılbaşından beri biriken (kümülatif) matraha göre hesaplanır. Yıl sonuna doğru çoğu çalışan %20 veya %27 dilimindedir ve ikramiye bu en yüksek dilimden vergilenir. Asgari ücret istisnası aylık uygulandığı için normal maaşta zaten kullanılmıştır; ikramiyeye ek istisna gelmez.</p>
+<p>Örnek: aylık ${tl(75000)} brüt maaşla Aralık'ta ${tl(75000)} brüt ikramiye alan çalışanın eline <b>${tl(r.net)}</b> geçer (%${fmt(r.oran * 100, 1)}). Kesintiler: SGK ve işsizlik ${tl(r.sgk)}, gelir vergisi ${tl(r.gv)}, damga vergisi ${tl(r.damga)}.</p>
+<h3>Hangi ayda ödendiği önemli mi?</h3><p>Yıllık toplam vergi, yılın toplam matrahına göre belirlendiği için ikramiye hangi ayda ödenirse ödensin yıl sonundaki toplam net gelir hemen hemen aynıdır. Değişen, o ayın netidir: yılın başında ödenen ikramiye düşük dilimde vergilenir ama sonraki aylarda daha erken dilim atlarsınız.</p>
+<p>Aylık maaşınızın 12 aylık dökümü için <a href="/maas-hesaplama/">maaş hesaplama</a> aracını kullanın.</p>`; },
+    faq: [
+      ['İkramiyeden vergi kesilir mi?', 'Evet. İkramiye ücret sayılır; SGK primi, işsizlik sigortası primi, gelir vergisi ve damga vergisi kesilir.'],
+      ['Brüt ikramiyenin yüzde kaçı net kalır?', `Yıl sonunda %27 dilimindeki bir çalışan için yaklaşık %61'i. Dilim düştükçe oran yükselir.`],
+      ['İkramiye SGK tavanını aşarsa ne olur?', `Aylık prime esas kazanç ${tl(P.sgkTavan)} tavanını aşarsa, aşan kısımdan SGK primi kesilmez; gelir vergisi ve damga vergisi kesilmeye devam eder.`],
+    ],
+  },
+  {
     path: '/zam-hesaplama/', short: 'Zam hesaplama', tile: 'Maaş zammı oranı ve yeni maaş',
     h1: 'Maaş zammı hesaplama',
     title: 'Zam Hesaplama – Maaş Zammı Yüzde Kaç? Yeni Maaş Ne Kadar?',

@@ -77,7 +77,7 @@ for (const c of CALCULATORS) {
 <div class="grid"><div>
 <div class="card">${c.form}<div class="result" aria-live="polite"></div></div>
 ${adSlot('below-calc')}
-<section class="prose">${c.content}</section>
+<section class="prose">${typeof c.content === "function" ? c.content() : c.content}</section>
 ${c.extra ? c.extra() : ''}
 ${faqHtml(c.faq)}
 </div>${sidebar(c.path)}</div>`;

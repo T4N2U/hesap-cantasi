@@ -252,6 +252,16 @@ export function issizlik({ ortalamaBrut, primGun }) {
   };
 }
 
+// İkramiye: verilen aya eklenen tek seferlik brüt ödemenin net etkisi (kümülatif matraha göre).
+export function ikramiye({ brut, ikramiye, ay = 12, tesvik = true }) {
+  const i = Math.min(12, Math.max(1, Math.round(ay))) - 1;
+  const list = Array(12).fill(brut); const ek = list.slice(); ek[i] = brut + ikramiye;
+  const a = brutNet(list, { tesvik }).aylar[i], b = brutNet(ek, { tesvik }).aylar[i];
+  const net = b.net - a.net;
+  return { net: r2(net), sgk: r2(b.sgk + b.issizlik - a.sgk - a.issizlik), gv: r2(b.gv - a.gv), damga: r2(b.damga - a.damga),
+    oran: ikramiye > 0 ? net / ikramiye : 0, dilim: b.dilim, ayNetOnce: a.net, ayNetSonra: b.net, maliyet: r2(b.maliyet - a.maliyet) };
+}
+
 // Fazla mesai (4857 m.41): saatlik brüt = aylık brüt / 225; fazla çalışma %50, fazla sürelerle çalışma %25 zamlı.
 export function fazlaMesai({ brut, saat, tip = 'fazla' }) {
   const saatlik = brut / 225;

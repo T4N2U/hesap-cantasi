@@ -100,6 +100,13 @@ const CALCS = {
     if (!r.sureGun) return err('İşsizlik ödeneği için son 3 yılda en az 600 gün prim gerekir.');
     return `<div class="summary">${row('Aylık net işsizlik maaşı', tl(r.net), true)}${row('Ödeme süresi', `${r.sureGun} gün (${r.sureAy} ay)`)}${row('Toplam alınacak (yaklaşık)', tl(r.toplam))}${row('Aylık brüt ödenek', tl(r.brut) + (r.tavanUygulandi ? ' (tavan)' : ''))}${row('Damga vergisi', tl(r.damga))}</div>`;
   },
+  ikramiye(f) {
+    const brut = num(f.brut.value), ik = num(f.ikramiye.value), ay = num(f.ay.value);
+    if (!(brut > 0) || !(ik > 0)) return err('Aylık brüt maaşı ve brüt ikramiyeyi girin.');
+    if (brut < E.PARAMS.asgariBrut) return err(`Brüt maaş asgari ücretin (${tl(E.PARAMS.asgariBrut)}) altında olamaz.`);
+    const r = E.ikramiye({ brut, ikramiye: ik, ay });
+    return `<div class="summary">${row('Eline geçecek net ikramiye', tl(r.net), true)}${row('Brüt ikramiyenin net oranı', pct(r.oran))}${row('SGK + işsizlik kesintisi', tl(r.sgk))}${row(`Gelir vergisi (dilim ${pct(r.dilim)})`, tl(r.gv))}${row('Damga vergisi', tl(r.damga))}${row('O ayki toplam net maaş', tl(r.ayNetSonra))}${row('İşverene ek maliyet', tl(r.maliyet))}</div>`;
+  },
   mesai(f) {
     const brut = num(f.brut.value), saat = num(f.saat.value);
     if (!(brut > 0) || !(saat > 0)) return err('Brüt maaşı ve mesai saatini girin.');

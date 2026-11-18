@@ -107,3 +107,10 @@ assert.ok(ev.tavanUygulandi); assert.equal(ev.esas, 3000000); assert.equal(ev.yi
 assert.equal(E.emlakVergisi({ deger: 5000000, muaf: true }).yillik, 0);
 
 console.log('All engine tests passed');
+
+{
+  const r = E.ikramiye({ brut: 75000, ikramiye: 75000, ay: 12 });
+  assert.equal(r.net, 45968.25); assert.equal(r.gv, 17212.5); assert.equal(r.sgk, 11250); assert.equal(r.damga, 569.25); assert.equal(r.dilim, 0.27);
+  const j = E.ikramiye({ brut: 75000, ikramiye: 75000, ay: 6 });
+  assert.equal(j.net, 47193.25);
+}
