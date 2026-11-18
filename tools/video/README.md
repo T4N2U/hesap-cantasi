@@ -20,7 +20,7 @@ Only the arrangement changes. Keep it safe: calm tempo, soft attacks, gentle or 
 | `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | işsizlik maaşı (long + Short) |
 | `acoustic-pluck` | nylon-guitar arpeggio, shaker | maaş: Aralık'ta maaşım neden düşüyor? (long + Short) |
 | `rhodes-groove` | warm electric piano, soft pop beat | emlak vergisi (long + Short) |
-| `musicbox-light` | music box over a pad, no drums | |
+| `musicbox-light` | music box over a pad, no drums | ikramiye (long + Short) |
 | `soft-pad` | sustained pads, music-box melody, heartbeat kick | |
 
 Rotate presets so neighbouring videos in the schedule never share one. A long video and its Short use the same preset.
