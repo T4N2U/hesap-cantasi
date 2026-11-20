@@ -47,3 +47,11 @@ Record the preset in the table above when a video is made.
 Build blocks are offered at 22:00 Istanbul time with a phone notification ("evet / atla").
 - "evet": build now.
 - "atla", or no reply: build the same job at **03:00 the next night** without asking again, and report the result in the morning.
+
+## Quick-reaction Shorts (announcement days)
+
+`quick/render.py card.json OUT.mp4 [--stills]` renders a 15 s "breaking news" Short in about a minute, music included.
+Copy `quick/samples/kira-ornek.json` or `faiz-ornek.json`, put in the real figures, **remove `"sample": true`** (it adds a big ÖRNEK watermark), render, upload.
+- Kira artış oranı: TÜİK, usually the 3rd of each month at 10:00. Update `kiraOranlari` in `engine.js` and push first, so the site matches the video.
+- Faiz kararı: TCMB PPK days (10 Dec, 21 Jan, 18 Mar, 22 Apr, 10 Jun …). Link the mevduat or kredi page.
+- Default music `playful-marimba`; set `"preset"` to vary it.
