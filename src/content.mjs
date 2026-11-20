@@ -136,6 +136,34 @@ ${go}</form>`,
     ],
   },
   {
+    path: '/emekli-memur-zammi-hesaplama/', short: 'Emekli ve memur zammı', tile: `${P.memurEmekli.donem} zam oranı ve yeni maaş`,
+    h1: `Emekli ve memur zammı hesaplama (${P.memurEmekli.donem})`,
+    title: `Emekli ve Memur Zammı Hesaplama ${P.memurEmekli.donem} – SSK, Bağ-Kur, Memur Yeni Maaş`,
+    description: `${P.memurEmekli.donem} SSK, Bağ-Kur ve memur zammını hesaplayın: 6 aylık enflasyon, toplu sözleşme zammı ve enflasyon farkıyla yeni maaşınız. Aylık TÜFE verileriyle güncellenir.`,
+    lead: 'Maaşınızı ve grubunuzu seçin. 6 aylık enflasyon kutusu, şu ana kadar açıklanan aylarla doldurulmuştur; kesinleşen rakamla değiştirebilirsiniz.',
+    form: (() => { const k = E.kumulatifTufe(P.memurEmekli.aylar) * 100; return `<form class="calc" data-calc="memur"><label>Grup<select name="tur"><option value="emekli">SSK veya Bağ-Kur emeklisi</option><option value="memur">Memur</option><option value="memur-emekli">Memur emeklisi</option></select></label><div class="row2">${money('maas', 'Mevcut aylık net maaş (₺)', '20.000')}<label>6 aylık enflasyon (%)<input name="enf" inputmode="decimal" value="${fmt(k)}"></label></div><div class="row2" data-memur>${money('tso', 'Önceki dönem toplu sözleşme zammı (%)', String(P.memurEmekli.tsOnceki))}${money('tsy', 'Yeni dönem toplu sözleşme zammı (%)', String(P.memurEmekli.tsYeni))}</div>${go}</form>`; })(),
+    content: () => {
+      const M = P.memurEmekli, k = Math.round(E.kumulatifTufe(M.aylar) * 10000) / 10000;
+      const memur = E.memurEmekliZam({ maas: 1, tur: 'memur', enf: k * 100 });
+      let cum = 1;
+      const rows = M.aylar.map(([ay, o]) => { cum *= 1 + o / 100; return `<tr><td>${ay}</td><td>%${fmt(o)}</td><td>%${fmt((cum - 1) * 100)}</td></tr>`; }).join('') + M.kalan.map((a) => `<tr><td>${a}</td><td colspan="2">Henüz açıklanmadı</td></tr>`).join('');
+      const ex = [15000, 20000, 25000, 30000].map((v) => `<tr><td>${tl(v)}</td><td>${tl(v * (1 + k))}</td></tr>`).join('');
+      const exm = [50000, 60000, 75000, 90000].map((v) => `<tr><td>${tl(v)}</td><td>${tl(v * (1 + memur.oran))}</td></tr>`).join('');
+      return `<h2>${M.donem} zammı nasıl hesaplanır?</h2>
+<p><b>SSK ve Bağ-Kur emeklileri</b>, önceki 6 ayın (Temmuz–Aralık veya Ocak–Haziran) TÜFE artışı kadar zam alır. <b>Memurlar ve memur emeklileri</b> ise toplu sözleşmeyle belirlenen zammı alır; önceki 6 aydaki enflasyon, o dönemin toplu sözleşme zammını aşarsa aradaki fark (enflasyon farkı) da eklenir.</p>
+<h3>Şu ana kadar açıklanan aylık enflasyon</h3><div class="tablewrap"><table><thead><tr><th>Ay</th><th>Aylık TÜFE</th><th>Kümülatif</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p>${M.kesin ? 'Oranlar kesinleşmiştir.' : `<b>Rakamlar henüz kesinleşmedi.</b> ${M.kalan.length} aylık veri daha açıklanınca bu sayfa aynı gün güncellenir. Şimdiye kadarki ${M.aylar.length} aylık enflasyon %${fmt(k * 100)}.`}</p>
+<h3>Şu ana kadarki verilerle emekli maaşı</h3><div class="tablewrap"><table><thead><tr><th>Mevcut maaş</th><th>Yeni maaş (%${fmt(k * 100)})</th></tr></thead><tbody>${ex}</tbody></table></div>
+<h3>Şu ana kadarki verilerle memur maaşı</h3><p>Toplu sözleşme zammı %${fmt(M.tsYeni)}, enflasyon farkı %${fmt(memur.fark * 100)}: toplam %${fmt(memur.oran * 100)}.</p><div class="tablewrap"><table><thead><tr><th>Mevcut maaş</th><th>Yeni maaş</th></tr></thead><tbody>${exm}</tbody></table></div>
+<p>En düşük emekli aylığı ve bayram ikramiyesi ayrıca kanunla belirlenir; otomatik olarak artmaz. Kendi maaş artışınızı yorumlamak için <a href="/zam-hesaplama/">zam hesaplama</a> aracını kullanabilirsiniz.</p>`;
+    },
+    faq: [
+      ['Emekli zammı ne zaman belli olur?', 'Ocak zammı, TÜİK’in Aralık enflasyonunu açıkladığı 3 Ocak civarında; Temmuz zammı ise Haziran enflasyonunun açıklandığı 3 Temmuz civarında kesinleşir.'],
+      ['SSK ve Bağ-Kur emeklisi aynı zammı mı alır?', 'Evet. İkisi de önceki 6 ayın TÜFE artışı kadar zam alır.'],
+      ['Memur enflasyon farkı nasıl hesaplanır?', '(1 + 6 aylık enflasyon) ÷ (1 + o dönemin toplu sözleşme zammı) − 1. Sonuç sıfırdan büyükse yeni dönem toplu sözleşme zammıyla çarpılarak eklenir.'],
+    ],
+  },
+  {
     path: '/zam-hesaplama/', short: 'Zam hesaplama', tile: 'Maaş zammı oranı ve yeni maaş',
     h1: 'Maaş zammı hesaplama',
     title: 'Zam Hesaplama – Maaş Zammı Yüzde Kaç? Yeni Maaş Ne Kadar?',

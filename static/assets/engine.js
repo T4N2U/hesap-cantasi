@@ -32,6 +32,13 @@ export const PARAMS = {
   ],
   kkdf: 0.15,
   bsmvTuketici: 0.15,
+  // Ocak/Temmuz memur ve emekli zammı: dönemin aylık TÜFE değişimleri (TÜİK). kesin=false iken 6 ay tamamlanmamıştır.
+  memurEmekli: {
+    donem: 'Ocak 2027', kesin: false,
+    aylar: [['Temmuz 2026', 1.78], ['Ağustos 2026', 1.84], ['Eylül 2026', 1.84], ['Ekim 2026', 2.58]],
+    kalan: ['Kasım 2026 (3 Aralık)', 'Aralık 2026 (5 Ocak)'],
+    tsOnceki: 7, tsYeni: 5, // memur toplu sözleşme zammı: 2026 2. yarı ve 2027 1. yarı (%)
+  },
   kiraOranlari: [ // 12 aylık ortalama TÜFE — uygulandığı ay
     { ay: 'Kasım 2026', oran: 31.23 },
     { ay: 'Ekim 2026', oran: 31.49 },
@@ -260,6 +267,17 @@ export function ikramiye({ brut, ikramiye, ay = 12, tesvik = true }) {
   const net = b.net - a.net;
   return { net: r2(net), sgk: r2(b.sgk + b.issizlik - a.sgk - a.issizlik), gv: r2(b.gv - a.gv), damga: r2(b.damga - a.damga),
     oran: ikramiye > 0 ? net / ikramiye : 0, dilim: b.dilim, ayNetOnce: a.net, ayNetSonra: b.net, maliyet: r2(b.maliyet - a.maliyet) };
+}
+
+// Memur/emekli zammı. Emekli (SSK, Bağ-Kur): 6 aylık TÜFE kadar. Memur ve memur emeklisi: yeni dönem toplu sözleşme
+// zammı × önceki dönem enflasyon farkı (6 aylık TÜFE önceki toplu sözleşme zammını aşarsa).
+export function kumulatifTufe(aylar) { return aylar.reduce((k, [, o]) => k * (1 + o / 100), 1) - 1; }
+export function memurEmekliZam({ maas, tur = 'emekli', enf, tsOnceki = PARAMS.memurEmekli.tsOnceki, tsYeni = PARAMS.memurEmekli.tsYeni }) {
+  const e = enf / 100;
+  let oran, fark = 0;
+  if (tur === 'emekli') oran = Math.max(0, e);
+  else { fark = Math.max(0, (1 + e) / (1 + tsOnceki / 100) - 1); oran = (1 + tsYeni / 100) * (1 + fark) - 1; }
+  return { oran, fark, yeni: r2(maas * (1 + oran)), artis: r2(maas * oran) };
 }
 
 // Fazla mesai (4857 m.41): saatlik brüt = aylık brüt / 225; fazla çalışma %50, fazla sürelerle çalışma %25 zamlı.

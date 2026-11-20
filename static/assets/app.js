@@ -120,6 +120,14 @@ const CALCS = {
     const r = E.tapuHarci({ bedel });
     return `<div class="summary">${row('Alıcının ödeyeceği harç', tl(r.alici), true)}${row('Satıcının ödeyeceği harç', tl(r.satici))}${row('Toplam tapu harcı', tl(r.toplam))}</div><p class="note">Döner sermaye ücreti ayrıca alınır. Beyan edilen bedel emlak vergisi değerinin altında olamaz.</p>`;
   },
+  memur(f) {
+    const maas = num(f.maas.value), enf = num(f.enf.value), tur = f.tur.value;
+    if (!(maas > 0) || !isFinite(enf)) return err('Mevcut maaşı ve 6 aylık enflasyonu girin.');
+    const tsOnceki = num(f.tso.value), tsYeni = num(f.tsy.value);
+    const r = E.memurEmekliZam({ maas, tur, enf, tsOnceki: isFinite(tsOnceki) ? tsOnceki : undefined, tsYeni: isFinite(tsYeni) ? tsYeni : undefined });
+    const extra = tur === 'emekli' ? '' : row('Enflasyon farkı', pct(r.fark)) + row('Toplu sözleşme zammı', '%' + fmt(isFinite(tsYeni) ? tsYeni : E.PARAMS.memurEmekli.tsYeni));
+    return `<div class="summary">${row('Yeni maaş', tl(r.yeni), true)}${row('Toplam zam oranı', pct(r.oran))}${row('Artış', tl(r.artis))}${extra}</div>`;
+  },
   zam(f) {
     const eski = num(f.eski.value), yeni = num(f.yeni.value), oran = num(f.oran.value);
     if (!(eski > 0)) return err('Mevcut tutarı girin.');
@@ -243,6 +251,12 @@ document.addEventListener('click', async (e) => {
 });
 
 document.querySelectorAll('form.calc').forEach(bind);
+
+// Memur fields only matter for memur / memur emeklisi
+document.querySelectorAll('form[data-calc="memur"]').forEach((f) => {
+  const sync = () => f.querySelectorAll('[data-memur]').forEach((el) => { el.hidden = f.tur.value === 'emekli'; });
+  f.addEventListener('change', sync); sync();
+});
 
 // Mode toggle labels on maaş form
 document.querySelectorAll('form[data-calc="maas"]').forEach((f) => {

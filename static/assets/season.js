@@ -12,6 +12,8 @@ export const GUNDEM = [
   { path: '/maas-hesaplama/', note: 'Aralık’ta net maaş neden düşer?', from: '12-01', to: '12-31', prio: 7 },
   { path: '/maas-hesaplama/', note: 'Ocak zammıyla yeni net maaşın', from: '01-01', to: '01-31', prio: 9 },
   { path: '/maas-hesaplama/', note: 'Temmuz bordrosu ve vergi dilimi', from: '07-01', to: '07-31', prio: 8 },
+  { path: '/emekli-memur-zammi-hesaplama/', note: 'Ocak emekli ve memur zammı', from: '12-01', to: '01-20', prio: 9 },
+  { path: '/emekli-memur-zammi-hesaplama/', note: 'Temmuz emekli ve memur zammı', from: '06-01', to: '07-20', prio: 9 },
   { path: '/zam-hesaplama/', note: 'Zam oranını hesapla', from: '12-20', to: '01-31', prio: 7 },
   { path: '/zam-hesaplama/', note: 'Temmuz zammı', from: '06-25', to: '07-31', prio: 7 },
   { path: '/kidem-tazminati-hesaplama/', note: 'Yeni kıdem tavanı', from: '12-28', to: '01-31', prio: 6 },

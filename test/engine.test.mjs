@@ -114,3 +114,13 @@ console.log('All engine tests passed');
   const j = E.ikramiye({ brut: 75000, ikramiye: 75000, ay: 6 });
   assert.equal(j.net, 47193.25);
 }
+
+{
+  const k = E.kumulatifTufe(E.PARAMS.memurEmekli.aylar);
+  assert.equal(Math.round(k * 10000) / 100, 8.28);
+  const e = E.memurEmekliZam({ maas: 20000, tur: 'emekli', enf: 8.28 });
+  assert.equal(e.yeni, 21656);
+  const m = E.memurEmekliZam({ maas: 60000, tur: 'memur', enf: 8.28, tsOnceki: 7, tsYeni: 5 });
+  assert.equal(Math.round(m.fark * 10000) / 100, 1.2);
+  assert.equal(Math.round(m.oran * 10000) / 100, 6.26);
+}
