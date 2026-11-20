@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE } from './site.mjs';
 import * as E from '../static/assets/engine.js';
 import { CALCULATORS, INFO_PAGES, LEGAL_PAGES } from './content.mjs';
+import { pick as pickGundem } from '../static/assets/season.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'dist');
@@ -267,18 +268,26 @@ ${hubLinks('Brütten nete maaş tabloları', brutAmounts, brutPath, 'brüt')}${h
 });
 
 // ---------- Home ----------
+// "Gündemde": seasonal row at the top (static/assets/season.js); app.js re-picks it by the visitor's date.
+const ALL_PAGES = Object.fromEntries([...CALCULATORS, ...INFO_PAGES].map((c) => [c.path, { short: c.short, tile: c.tile }]));
+const gundemTile = (g) => { const c = ALL_PAGES[g.path]; return `<a class="tile hot" href="${g.path}"><b>${c.short}</b><span>${g.note || c.tile}</span></a>`; };
+const gundemHtml = () => `<section class="gundem" aria-labelledby="gundem-h"><h2 id="gundem-h">Gündemde</h2><div class="tiles" id="gundem">${pickGundem(new Date(), 8, P.year).filter((g) => ALL_PAGES[g.path]).slice(0, 4).map(gundemTile).join('')}</div><script type="application/json" id="gundem-pages">${JSON.stringify(ALL_PAGES).replace(/</g, '\\u003c')}</script></section>`;
+// Main grid: ordered by year-round demand (Search Console + keyword volume), not by when the page was added.
+const HOME_PRIORITY = ['/maas-hesaplama/', '/kidem-tazminati-hesaplama/', '/kira-artis-hesaplama/', '/tapu-harci-hesaplama/', '/kredi-hesaplama/', '/ihbar-tazminati-hesaplama/', '/issizlik-maasi-hesaplama/', '/mevduat-faizi-hesaplama/', '/emlak-vergisi-hesaplama/', '/ikramiye-hesaplama/', '/kdv-hesaplama/', '/zam-hesaplama/', '/fazla-mesai-hesaplama/', '/yillik-izin-hesaplama/', '/yuzde-hesaplama/'];
+const HOME_ORDER = [...CALCULATORS].sort((a, b) => { const i = (c) => { const k = HOME_PRIORITY.indexOf(c.path); return k < 0 ? 99 : k; }; return i(a) - i(b); });
 const asg = E.brutNet(P.asgariBrut).aylar[0];
 layout({
   path: '/', title: `${SITE.name} – Güncel Maaş, Tazminat, Kira ve Kredi Hesaplama ${P.year}`, description: SITE.description,
   schema: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.url, inLanguage: 'tr' }],
   body: `<h1 style="margin-top:28px">Güncel hesaplamalar, tek yerde</h1>
 <p class="lead">${P.year} vergi dilimleri, asgari ücret, kıdem tavanı ve kira artış oranlarıyla güncel, ücretsiz ve hızlı hesaplama araçları. Girdiğiniz bilgiler tarayıcınızdan çıkmaz.</p>
+${gundemHtml()}
 <div class="card"><div class="summary">
 <div class="kv"><span>Net asgari ücret ${P.year}</span><b>${tl(asg.net)}</b></div>
 <div class="kv"><span>Kira artış oranı (${kNow.ay})</span><b>%${fmt(kNow.oran)}</b></div>
 <div class="kv"><span>Kıdem tazminatı tavanı</span><b>${tl(P.kidemTavan.at(-1).tutar)}</b></div>
 <div class="kv"><span>Mevduat stopajı (6 aya kadar)</span><b>%17,5</b></div></div></div>
-<div class="tiles">${CALCULATORS.map((c) => `<a class="tile" href="${c.path}"><b>${c.short}</b><span>${c.tile}</span></a>`).join('')}</div>
+<div class="tiles">${HOME_ORDER.map((c) => `<a class="tile" href="${c.path}"><b>${c.short}</b><span>${c.tile}</span></a>`).join('')}</div>
 ${adSlot('home')}
 <h2>Popüler maaş sorguları</h2><ul class="links">${[40000, 50000, 60000, 75000, 100000, 150000].map((v) => `<li><a href="${brutPath(v)}">${kStr(v)} TL brüt kaç net?</a></li>`).join('')}${[35000, 40000, 50000, 60000, 80000, 100000].map((v) => `<li><a href="${netPath(v)}">${kStr(v)} TL net kaç brüt?</a></li>`).join('')}</ul>
 <h2>Popüler kıdem ve kredi sorguları</h2><ul class="links">${[40000, 50000, 60000, 75000, 100000].map((v) => `<li><a href="${kidemPath(v)}">${kStr(v)} TL maaşla kıdem tazminatı</a></li>`).join('')}${[50000, 100000, 200000, 500000].map((v) => `<li><a href="${krediPath(v)}">${kStr(v)} TL kredi taksiti</a></li>`).join('')}</ul>

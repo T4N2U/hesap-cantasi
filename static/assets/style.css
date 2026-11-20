@@ -71,6 +71,10 @@ summary{cursor:pointer;font-weight:600;color:var(--accent)}
 .tile:hover{border-color:var(--accent);transform:translateY(-2px)}
 .tile b{display:block;font-size:16px;margin-bottom:4px}
 .tile span{color:var(--muted);font-size:14px}
+.gundem h2{margin:22px 0 0;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.gundem .tiles{margin-top:10px}
+.tile.hot{border-color:var(--accent);border-left-width:4px}
+.tile.hot span{color:var(--ink)}
 .links{columns:3 180px;gap:16px;font-size:14px;padding:0;list-style:none}
 .links li{break-inside:avoid;padding:3px 0}
 .ad{margin:22px 0;min-height:100px;display:flex;align-items:center;justify-content:center}

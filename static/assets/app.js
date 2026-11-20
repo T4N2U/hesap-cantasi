@@ -1,4 +1,5 @@
 import * as E from './engine.js';
+import { pick as pickGundem } from './season.js';
 
 const tl = E.tl, fmt = E.fmt;
 const num = (v) => {
@@ -249,3 +250,14 @@ document.querySelectorAll('form[data-calc="maas"]').forEach((f) => {
   const sync = () => { if (lbl) lbl.textContent = f.mod.value === 'brut' ? 'Aylık brüt maaş (₺)' : 'Aylık net maaş (₺)'; };
   f.addEventListener('change', sync); sync();
 });
+
+// Homepage "Gündemde": re-pick by today's date so the row stays current between deploys.
+(() => {
+  const box = document.getElementById('gundem'), data = document.getElementById('gundem-pages');
+  if (!box || !data) return;
+  try {
+    const pages = JSON.parse(data.textContent);
+    const items = pickGundem(new Date(), 8).filter((g) => pages[g.path]).slice(0, 4);
+    if (items.length) box.innerHTML = items.map((g) => `<a class="tile hot" href="${g.path}"><b>${pages[g.path].short}</b><span>${g.note || pages[g.path].tile}</span></a>`).join('');
+  } catch (e) { /* keep the server-rendered row */ }
+})();
