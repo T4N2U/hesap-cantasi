@@ -164,6 +164,29 @@ ${go}</form>`,
     ],
   },
   {
+    path: '/mtv-hesaplama/', short: 'MTV hesaplama', tile: `${P.mtvYil} motorlu taşıtlar vergisi`,
+    h1: `MTV hesaplama ${P.mtvYil}: otomobil motorlu taşıtlar vergisi`,
+    title: `MTV Hesaplama ${P.mtvYil} – Motor Hacmi, Yaş ve Taşıt Değerine Göre Motorlu Taşıtlar Vergisi`,
+    description: `${P.mtvYil} otomobil MTV tutarını motor hacmi, model yılı ve taşıt değerine göre hesaplayın. Ocak ve Temmuz taksitleri ile ${P.mtvYil + 1} tahmini.`,
+    lead: 'Aracınızın motor hacmini, model yılını ve (2018 ve sonrası tescilde) ilk tescildeki taşıt değerini girin.',
+    form: `<form class="calc" data-calc="mtv"><label>İlk tescil tarihi<select name="tescil"><option value="yeni">1 Ocak 2018 ve sonrası</option><option value="eski">31 Aralık 2017 ve öncesi</option></select></label><div class="row2"><label>Motor silindir hacmi (cm³)<input name="cc" inputmode="numeric" value="1598"></label><label>Model yılı<input name="yil" inputmode="numeric" value="2023"></label></div><div data-yeni>${money('deger', 'Taşıt değeri (ilk tescil, KDV hariç ₺)', '450.000')}</div>${go}</form>`,
+    content: () => {
+      const yd = P.yenidenDegerleme;
+      const rows = P.mtvEski.map(([lim, a], i) => { const lo = i ? P.mtvEski[i - 1][0] + 1 : 0; return `<tr><td>${lim === Infinity ? `${fmt(lo, 0)} ve üzeri` : i ? `${fmt(lo, 0)}–${fmt(lim, 0)}` : `${fmt(lim, 0)} ve altı`}</td>${a.map((v) => `<td>${fmt(v, 0)}</td>`).join('')}</tr>`; }).join('');
+      return `<h2>MTV nasıl hesaplanır?</h2>
+<p>Otomobillerde motorlu taşıtlar vergisi; <b>motor silindir hacmine</b>, <b>aracın yaşına</b> ve 1 Ocak 2018'den sonra ilk kez tescil edilen araçlarda <b>taşıt değerine</b> (ilk tescildeki KDV hariç bedel) göre (I) sayılı tarifeden bulunur. Yaş, model yılından hesaplanır: ${P.mtvYil} için ${P.mtvYil - 2}–${P.mtvYil} model araçlar 1-3 yaş grubundadır.</p>
+<p>Yıllık vergi iki eşit taksitte ödenir: <b>Ocak</b> ve <b>Temmuz</b> ayları sonuna kadar.</p>
+<h3>${P.mtvYil} tarifesi (31.12.2017 ve öncesi tescilli otomobiller, yıllık TL)</h3><div class="tablewrap"><table><thead><tr><th>Motor hacmi (cm³)</th><th>1-3</th><th>4-6</th><th>7-11</th><th>12-15</th><th>16+</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p>2018 ve sonrası tescilli araçlarda her motor hacmi diliminde taşıt değerine göre 2–3 ayrı satır vardır; hesaplama aracı doğru satırı seçer.</p>
+<h3>${yd.uygulanacakYil} MTV ne kadar olacak?</h3><p>MTV tutarları her yıl yeniden değerleme oranı kadar artırılır. ${yd.uygulanacakYil} için oran <b>%${fmt(yd.oran)}</b> olarak açıklandı. Hesaplama aracındaki ${yd.uygulanacakYil} tutarı bu oranla bulunmuş bir <b>tahmindir</b>; kesin tarife Aralık sonunda yayımlanacak tebliğle belli olur ve bu sayfa güncellenir.</p>`;
+    },
+    faq: [
+      ['MTV ne zaman ödenir?', 'Yılda iki eşit taksitte: Ocak ve Temmuz ayları sonuna kadar.'],
+      ['Taşıt değeri nedir?', '1 Ocak 2018 ve sonrası ilk kez tescil edilen araçlarda, ilk tescildeki KDV hariç satış bedelidir (faturada yazan tutar). Sonraki yıllarda bu sınırlar yeniden değerleme oranıyla güncellenir.'],
+      [`${P.yenidenDegerleme.uygulanacakYil} MTV zammı ne kadar?`, `Yeniden değerleme oranı kadar, yani %${fmt(P.yenidenDegerleme.oran)}.`],
+    ],
+  },
+  {
     path: '/zam-hesaplama/', short: 'Zam hesaplama', tile: 'Maaş zammı oranı ve yeni maaş',
     h1: 'Maaş zammı hesaplama',
     title: 'Zam Hesaplama – Maaş Zammı Yüzde Kaç? Yeni Maaş Ne Kadar?',
@@ -387,6 +410,25 @@ export const INFO_PAGES = [
 <p>Ücret dışı gelirlerde (kira, serbest meslek, ticari kazanç) üçüncü dilim 1.000.000 TL'de biter; ücretlilerde bu sınır 1.500.000 TL'dir.</p>
 <h2>Maaşınız hangi ayda dilim atlar?</h2><p>Bordroda vergi, yılbaşından itibaren biriken matraha göre hesaplanır. <a href="/maas-hesaplama/">Maaş hesaplama</a> aracındaki 12 aylık tablo, hangi ayda %20 veya %27 dilimine geçeceğinizi gösterir.</p>`,
     faq: [['İlk vergi dilimi sınırı ne kadar?', '190.000 TL.'], ['Asgari ücretli vergi dilimine girer mi?', 'Asgari ücretin vergisi istisna olduğundan, asgari ücretli çalışan gelir vergisi ödemez.']],
+  },
+  {
+    path: `/gelir-vergisi-dilimleri-${P.yenidenDegerleme.uygulanacakYil}/`, short: `Vergi dilimleri ${P.yenidenDegerleme.uygulanacakYil}`, tile: P.yenidenDegerleme.uygulanacakYil > Y ? 'Tahmini tarife (yeniden değerleme ile)' : 'Ücret gelirleri tarifesi',
+    h1: `Gelir vergisi dilimleri ${P.yenidenDegerleme.uygulanacakYil} (tahmini)`,
+    title: `Gelir Vergisi Dilimleri ${P.yenidenDegerleme.uygulanacakYil} – Tahmini Tarife (%${fmt(P.yenidenDegerleme.oran)} Yeniden Değerleme)`,
+    description: `${P.yenidenDegerleme.uygulanacakYil} gelir vergisi dilimleri ne olacak? ${Y} tarifesinin %${fmt(P.yenidenDegerleme.oran)} yeniden değerleme oranıyla güncellenmiş tahmini hali; ücret ve ücret dışı gelirler için.`,
+    body: () => {
+      const yd = P.yenidenDegerleme, N = yd.uygulanacakYil;
+      const tab = (now, est) => { let pa = 0, pb = 0; return now.map(([lim, r], i) => { const [l2] = est[i]; const row = `<tr><td>%${r * 100}</td><td>${lim === Infinity ? `${fmt(pa, 0)} TL üzeri` : `${fmt(pa, 0)} – ${fmt(lim, 0)} TL`}</td><td><b>${l2 === Infinity ? `${fmt(pb, 0)} TL üzeri` : `${fmt(pb, 0)} – ${fmt(l2, 0)} TL`}</b></td></tr>`; pa = lim; pb = l2; return row; }).join(''); };
+      return `<p class="lead">${N} gelir vergisi tarifesi henüz yayımlanmadı. Tarifedeki dilim tutarları her yıl yeniden değerleme oranıyla artırılır; ${N} için oran <b>%${fmt(yd.oran)}</b> olarak açıklandı. Aşağıdaki ${N} dilimleri bu oranla hesaplanmış <b>tahmindir</b> (1.000 TL'yi aşmayan kesirler atılmıştır). Resmî tebliğ Aralık sonunda yayımlanınca sayfa aynı gün güncellenir.</p>
+<h2>Ücret gelirleri</h2><div class="tablewrap"><table><thead><tr><th>Oran</th><th>${Y}</th><th>${N} (tahmini)</th></tr></thead><tbody>${tab(P.gvDilim, E.tahminiDilim(P.gvDilim))}</tbody></table></div>
+<h2>Ücret dışı gelirler (kira, serbest meslek, ticari kazanç)</h2><div class="tablewrap"><table><thead><tr><th>Oran</th><th>${Y}</th><th>${N} (tahmini)</th></tr></thead><tbody>${tab(P.gvDilimUcretDisi, E.tahminiDilim(P.gvDilimUcretDisi))}</tbody></table></div>
+<h2>Ne değişir?</h2><p>Dilimler genişlediği için aynı brüt maaşla bir üst dilime daha geç geçilir. Örneğin ${Y}'da %20 dilimi 190.000 TL'de başlarken, ${N}'de tahminen ${fmt(E.tahminiDilim(P.gvDilim)[0][0], 0)} TL'de başlayacak. Kendi bordronuz için <a href="/maas-hesaplama/">maaş hesaplama</a> aracını kullanın; güncel tarife: <a href="/gelir-vergisi-dilimleri-${Y}/">gelir vergisi dilimleri ${Y}</a>.</p>`;
+    },
+    faq: [
+      [`${P.yenidenDegerleme.uygulanacakYil} vergi dilimleri açıklandı mı?`, 'Henüz resmî tebliğ yayımlanmadı. Bu sayfadaki tutarlar yeniden değerleme oranıyla hesaplanmış tahminlerdir; tebliğ Aralık sonunda yayımlanır.'],
+      [`${P.yenidenDegerleme.uygulanacakYil} ilk vergi dilimi ne kadar olacak?`, `Tahminen ${fmt(E.tahminiDilim(P.gvDilim)[0][0], 0)} TL (${Y}: 190.000 TL).`],
+      ['Yeniden değerleme oranı nedir?', 'Yurt içi üretici fiyat endeksindeki (Yİ-ÜFE) son 12 aylık artıştır. Vergi, harç ve ceza tutarları bir sonraki yıl bu oranla güncellenir.'],
+    ],
   },
 ];
 

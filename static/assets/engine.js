@@ -39,6 +39,23 @@ export const PARAMS = {
     kalan: ['Kasım 2026 (3 Aralık)', 'Aralık 2026 (5 Ocak)'],
     tsOnceki: 7, tsYeni: 5, // memur toplu sözleşme zammı: 2026 2. yarı ve 2027 1. yarı (%)
   },
+  // Yeniden değerleme oranı (VUK mükerrer 298): bir sonraki yılın vergi, harç ve ceza tutarlarına uygulanır.
+  yenidenDegerleme: { oran: 27.83, uygulanacakYil: 2027, kesin: true },
+  gvDilimUcretDisi: [[190000, 0.15], [400000, 0.20], [1000000, 0.27], [5300000, 0.35], [Infinity, 0.40]],
+  // MTV (I) sayılı tarife, otomobil. [cc üst sınırı, [[taşıt değeri üst sınırı, [1-3, 4-6, 7-11, 12-15, 16+]], ...]]
+  mtvYil: 2026,
+  mtv2018: [
+    [1300, [[309100, [5750, 4010, 2238, 1689, 593]], [541500, [6319, 4409, 2459, 1861, 655]], [Infinity, [6902, 4807, 2693, 2032, 706]]]],
+    [1600, [[309100, [10016, 7510, 4354, 3077, 1181]], [541500, [11023, 8264, 4794, 3375, 1290]], [Infinity, [12028, 9012, 5220, 3685, 1408]]]],
+    [1800, [[775100, [19472, 15226, 8948, 5458, 2113]], [Infinity, [21251, 16600, 9775, 5964, 2307]]]],
+    [2000, [[775100, [30679, 23625, 13886, 8264, 3248]], [Infinity, [33474, 25784, 15147, 9012, 3547]]]],
+    [2500, [[968100, [46027, 33413, 20874, 12465, 4930]], [Infinity, [50217, 36448, 22768, 13606, 5378]]]],
+    [3000, [[1937500, [64175, 55837, 34878, 18758, 6875]], [Infinity, [70018, 60905, 38053, 20466, 7503]]]],
+    [3500, [[1937500, [97744, 87954, 52976, 26443, 9684]], [Infinity, [106641, 95940, 57791, 28839, 10578]]]],
+    [4000, [[3101800, [153684, 132712, 78152, 34878, 13886]], [Infinity, [167671, 144770, 85271, 38053, 15147]]]],
+    [Infinity, [[3683200, [251554, 188627, 111714, 50206, 19472]], [Infinity, [274415, 205781, 121873, 54769, 21251]]]],
+  ],
+  mtvEski: [[1300, [5750, 4010, 2238, 1689, 593]], [1600, [10016, 7510, 4354, 3077, 1181]], [1800, [17705, 13829, 8145, 4957, 1917]], [2000, [27898, 21478, 12624, 7510, 2958]], [2500, [41840, 30372, 18977, 11333, 4479]], [3000, [58347, 50754, 31704, 17044, 6255]], [3500, [88859, 79955, 48158, 24031, 8813]], [4000, [139721, 120647, 71048, 31704, 12624]], [Infinity, [228681, 171485, 101555, 45632, 17705]]],
   kiraOranlari: [ // 12 aylık ortalama TÜFE — uygulandığı ay
     { ay: 'Kasım 2026', oran: 31.23 },
     { ay: 'Ekim 2026', oran: 31.49 },
@@ -278,6 +295,24 @@ export function memurEmekliZam({ maas, tur = 'emekli', enf, tsOnceki = PARAMS.me
   if (tur === 'emekli') oran = Math.max(0, e);
   else { fark = Math.max(0, (1 + e) / (1 + tsOnceki / 100) - 1); oran = (1 + tsYeni / 100) * (1 + fark) - 1; }
   return { oran, fark, yeni: r2(maas * (1 + oran)), artis: r2(maas * oran) };
+}
+
+// Gelir vergisi tarifesi tahmini: dilim tutarları yeniden değerleme oranıyla artırılır, 1.000 TL'yi aşmayan kesirler atılır.
+export function tahminiDilim(dilim, oran = PARAMS.yenidenDegerleme.oran) {
+  return dilim.map(([lim, r]) => [lim === Infinity ? Infinity : Math.floor(lim * (1 + oran / 100) / 1000) * 1000, r]);
+}
+
+// MTV: otomobil, (I) sayılı tarife. modelYili → yaş grubu; 2018 ve sonrası tescilde taşıt değerine göre satır.
+export function mtv({ cc, modelYili, deger = 0, tescil2018 = true, yil = PARAMS.mtvYil }) {
+  const yas = yil - modelYili + 1;
+  const g = yas <= 3 ? 0 : yas <= 6 ? 1 : yas <= 11 ? 2 : yas <= 15 ? 3 : 4;
+  let tutar;
+  if (tescil2018) {
+    const [, bands] = PARAMS.mtv2018.find(([lim]) => cc <= lim);
+    tutar = bands.find(([lim]) => deger <= lim)[1][g];
+  } else tutar = PARAMS.mtvEski.find(([lim]) => cc <= lim)[1][g];
+  const t2 = Math.floor(tutar * (1 + PARAMS.yenidenDegerleme.oran / 100));
+  return { yas, grup: ['1-3', '4-6', '7-11', '12-15', '16 ve üzeri'][g], yillik: tutar, taksit: tutar / 2, tahminiSonrakiYil: t2 };
 }
 
 // Fazla mesai (4857 m.41): saatlik brüt = aylık brüt / 225; fazla çalışma %50, fazla sürelerle çalışma %25 zamlı.

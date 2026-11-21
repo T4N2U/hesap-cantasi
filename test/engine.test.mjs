@@ -106,7 +106,6 @@ const ev = E.emlakVergisi({ deger: 9000000, tur: 'konut', onceki: 1000000 });
 assert.ok(ev.tavanUygulandi); assert.equal(ev.esas, 3000000); assert.equal(ev.yillik, 6000);
 assert.equal(E.emlakVergisi({ deger: 5000000, muaf: true }).yillik, 0);
 
-console.log('All engine tests passed');
 
 {
   const r = E.ikramiye({ brut: 75000, ikramiye: 75000, ay: 12 });
@@ -124,3 +123,14 @@ console.log('All engine tests passed');
   assert.equal(Math.round(m.fark * 10000) / 100, 1.2);
   assert.equal(Math.round(m.oran * 10000) / 100, 6.26);
 }
+
+{
+  const d = E.tahminiDilim(E.PARAMS.gvDilim);
+  assert.deepEqual(d.slice(0, 4).map((x) => x[0]), [242000, 511000, 1917000, 6774000]);
+  assert.equal(E.mtv({ cc: 1598, modelYili: 2023, deger: 450000 }).yillik, 8264);
+  assert.equal(E.mtv({ cc: 1598, modelYili: 2023, deger: 450000 }).grup, '4-6');
+  assert.equal(E.mtv({ cc: 1300, modelYili: 2026, deger: 200000 }).yillik, 5750);
+  assert.equal(E.mtv({ cc: 1995, modelYili: 2015, tescil2018: false }).yillik, 7510);
+  assert.equal(E.mtv({ cc: 5000, modelYili: 2026, deger: 5e6 }).yillik, 274415);
+}
+console.log('All engine tests passed');

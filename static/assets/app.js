@@ -120,6 +120,13 @@ const CALCS = {
     const r = E.tapuHarci({ bedel });
     return `<div class="summary">${row('Alıcının ödeyeceği harç', tl(r.alici), true)}${row('Satıcının ödeyeceği harç', tl(r.satici))}${row('Toplam tapu harcı', tl(r.toplam))}</div><p class="note">Döner sermaye ücreti ayrıca alınır. Beyan edilen bedel emlak vergisi değerinin altında olamaz.</p>`;
   },
+  mtv(f) {
+    const cc = num(f.cc.value), yil = num(f.yil.value), deger = num(f.deger.value), tescil2018 = f.tescil.value === 'yeni';
+    if (!(cc > 0) || !(yil > 1950)) return err('Motor hacmini ve model yılını girin.');
+    if (tescil2018 && !(deger > 0)) return err('2018 ve sonrası tescilli araçlarda ilk tescildeki taşıt değerini (fatura bedeli, KDV hariç) girin.');
+    const r = E.mtv({ cc, modelYili: yil, deger, tescil2018 });
+    return `<div class="summary">${row(`${E.PARAMS.mtvYil} yıllık MTV`, tl(r.yillik), true)}${row('Taksit (Ocak ve Temmuz)', tl(r.taksit))}${row('Yaş grubu', r.grup)}${row(`${E.PARAMS.mtvYil + 1} tahmini (%${fmt(E.PARAMS.yenidenDegerleme.oran)} artışla)`, tl(r.tahminiSonrakiYil))}</div>`;
+  },
   memur(f) {
     const maas = num(f.maas.value), enf = num(f.enf.value), tur = f.tur.value;
     if (!(maas > 0) || !isFinite(enf)) return err('Mevcut maaşı ve 6 aylık enflasyonu girin.');
@@ -251,6 +258,12 @@ document.addEventListener('click', async (e) => {
 });
 
 document.querySelectorAll('form.calc').forEach(bind);
+
+// MTV: taşıt değeri only for 2018+ registrations
+document.querySelectorAll('form[data-calc="mtv"]').forEach((f) => {
+  const sync = () => f.querySelectorAll('[data-yeni]').forEach((el) => { el.hidden = f.tescil.value !== 'yeni'; });
+  f.addEventListener('change', sync); sync();
+});
 
 // Memur fields only matter for memur / memur emeklisi
 document.querySelectorAll('form[data-calc="memur"]').forEach((f) => {
