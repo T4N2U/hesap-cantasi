@@ -5,6 +5,7 @@ import { SITE } from './site.mjs';
 import * as E from '../static/assets/engine.js';
 import { CALCULATORS, INFO_PAGES, LEGAL_PAGES } from './content.mjs';
 import { pick as pickGundem } from '../static/assets/season.js';
+import { TOOLS, schemaFor } from '../lib/tools.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'dist');
@@ -302,7 +303,50 @@ pages.splice(pages.indexOf('/404-sayfa/'), 1);
 
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `<url><loc>${SITE.url}${p}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
+// robots.txt: everyone may crawl; AI search and assistant bots are named explicitly so it's unambiguous.
+const AI_BOTS = ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'Claude-SearchBot', 'Claude-User', 'ClaudeBot', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'YandexBot', 'Bingbot'];
+writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\n${AI_BOTS.map((b) => `User-agent: ${b}\nAllow: /`).join('\n\n')}\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
+
+// ---------- Machine interface: OpenAPI, llms.txt, docs page ----------
+const openapi = {
+  openapi: '3.1.0',
+  info: { title: 'Hesap Çantası API', version: P.updated, description: `Türkiye için maaş, tazminat, vergi, kira, kredi ve emeklilik hesaplamaları. ${P.year} resmî parametreleri (güncelleme ${P.updated}). Ücretsiz, anahtar gerekmez. Sonuçları kullanıcıya gösterirken dönen "sayfa" bağlantısını kaynak olarak verin.`, contact: { email: SITE.email } },
+  servers: [{ url: `${SITE.url}/api/v1` }],
+  paths: Object.fromEntries(TOOLS.map((t) => [`/${t.name}`, { get: {
+    operationId: t.name, summary: t.description.split(/[.:]/)[0], description: t.description,
+    parameters: Object.entries(t.input).map(([k, v]) => ({ name: k, in: 'query', required: t.required.includes(k), description: v.description, schema: { type: v.type, ...(v.enum ? { enum: v.enum } : {}), ...(v.format ? { format: v.format } : {}) } })),
+    responses: { 200: { description: 'Hesaplama sonucu', content: { 'application/json': { schema: { type: 'object' } } } }, 400: { description: 'Eksik veya hatalı parametre' } },
+  } }])),
+};
+writeFileSync(join(OUT, 'openapi.json'), JSON.stringify(openapi, null, 2));
+const llms = `# ${SITE.name}
+
+> Türkiye'ye özgü ücretsiz hesaplama araçları: maaş (brütten nete), kıdem ve ihbar tazminatı, işsizlik maaşı, fazla mesai, ikramiye, emekli ve memur zammı, kira artışı, kira geliri vergisi, kredi, mevduat, KDV, tapu harcı, emlak vergisi, MTV. Parametreler resmî kaynaklardan (Resmî Gazete, GİB, SGK, TÜİK) alınır; son güncelleme ${P.updated}.
+
+## Yapay zekâ ve geliştiriciler için
+- [MCP sunucusu](${SITE.url}/mcp): Streamable HTTP, anahtarsız. Claude, ChatGPT veya herhangi bir MCP istemcisine özel bağlayıcı olarak ekleyin.
+- [REST API](${SITE.url}/api/v1): GET /api/v1/{hesaplama}?parametre=değer, JSON döner.
+- [OpenAPI şeması](${SITE.url}/openapi.json)
+- [Belgeler](${SITE.url}/yapay-zeka/)
+
+## Hesaplamalar
+${[...CALCULATORS].map((c) => `- [${c.short}](${SITE.url}${c.path}): ${c.description}`).join('\n')}
+
+## Güncel bilgi sayfaları
+${INFO_PAGES.map((c) => `- [${c.short}](${SITE.url}${c.path}): ${c.description}`).join('\n')}
+`;
+writeFileSync(join(OUT, 'llms.txt'), llms);
+const ex = TOOLS.find((t) => t.name === 'maas_brutten_nete');
+layout({
+  path: '/yapay-zeka/', title: `${SITE.name} API ve MCP – Yapay Zekâ Asistanları İçin Hesaplama Araçları`, description: 'Hesap Çantası hesaplamalarını ChatGPT, Claude ve diğer yapay zekâ asistanlarında MCP veya REST API ile kullanın. Ücretsiz, anahtar gerekmez.',
+  body: `<h1 style="margin-top:28px">Yapay zekâ asistanları ve geliştiriciler için</h1>
+<p class="lead">Sitedeki tüm hesaplamalar, aynı resmî parametrelerle, makinelerin doğrudan çağırabileceği biçimde de sunulur. Ücretsizdir ve anahtar gerekmez.</p>
+<h2>MCP sunucusu</h2><p>Claude, ChatGPT veya MCP destekleyen bir uygulamada <b>özel bağlayıcı</b> ekleyip şu adresi girin:</p><pre class="code">${SITE.url}/mcp</pre><p>Asistan, “50.000 TL brüt kaç net?” gibi sorularda hesaplamayı bu araçlarla yapar ve sonuçla birlikte ilgili sayfanın bağlantısını verir.</p>
+<h2>REST API</h2><p>Her hesaplama bir GET isteğiyle çağrılır ve JSON döner. Örnek:</p><pre class="code">${SITE.url}/api/v1/maas_brutten_nete?brut=50000</pre><p>Tüm uç noktalar: <a href="/api/v1">/api/v1</a> · Şema: <a href="/openapi.json">/openapi.json</a></p>
+<h2>Araçlar</h2><div class="tablewrap"><table><thead><tr><th>Araç</th><th>Ne yapar</th><th>Zorunlu parametreler</th></tr></thead><tbody>${TOOLS.map((t) => `<tr><td><code>${t.name}</code></td><td>${t.description}</td><td>${t.required.map((r) => `<code>${r}</code>`).join(', ') || '—'}</td></tr>`).join('')}</tbody></table></div>
+<p>Sonuçlar bilgilendirme amaçlıdır. Kullanıcılara gösterirken yanıttaki <code>sayfa</code> bağlantısını kaynak olarak verin. Sorular için: ${SITE.email}</p>`,
+});
+
 if (SITE.adsenseClient) writeFileSync(join(OUT, 'ads.txt'), `google.com, ${SITE.adsenseClient.replace('ca-', '')}, DIRECT, f08c47fec0942fa0\n`);
 writeFileSync(join(OUT, '_headers'), `/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n`);
 

@@ -12,3 +12,7 @@ People use these calculators for decisions about their pay, taxes, rent and pens
 
 ## Build
 `npm test` then `npm run build` (output in `dist/`). Push to `main`; Cloudflare Pages deploys automatically.
+
+## Machine interface
+- `lib/tools.js` is the single registry of calculators for machines. `functions/api/v1/[[path]].js` (REST), `functions/mcp.js` (MCP, Streamable HTTP) and `dist/openapi.json` / `dist/llms.txt` / `/yapay-zeka/` are all generated from it.
+- When you add a calculator to the site, add it to `lib/tools.js` and to `SAMPLES` in `test/api.test.mjs`.

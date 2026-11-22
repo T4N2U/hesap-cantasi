@@ -1,1 +1,1 @@
-{"type":"module","name":"hesap","private":true,"scripts":{"test":"node test/engine.test.mjs","build":"node src/build.mjs"}}
+{"type":"module","name":"hesap","private":true,"scripts":{"test":"node test/engine.test.mjs && node test/api.test.mjs","build":"node src/build.mjs"}}
