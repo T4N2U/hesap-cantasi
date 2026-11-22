@@ -138,7 +138,7 @@ const CALCS = {
     if (!(cc > 0) || !(yil > 1950)) return err('Motor hacmini ve model yılını girin.');
     if (tescil2018 && !(deger > 0)) return err('2018 ve sonrası tescilli araçlarda ilk tescildeki taşıt değerini (fatura bedeli, KDV hariç) girin.');
     const r = E.mtv({ cc, modelYili: yil, deger, tescil2018 });
-    return `<div class="summary">${row(`${E.PARAMS.mtvYil} yıllık MTV`, tl(r.yillik), true)}${row('Taksit (Ocak ve Temmuz)', tl(r.taksit))}${row('Yaş grubu', r.grup)}${row(`${E.PARAMS.mtvYil + 1} tahmini (%${fmt(E.PARAMS.yenidenDegerleme.oran)} artışla)`, tl(r.tahminiSonrakiYil))}</div>`;
+    return `<div class="summary">${row(`${E.PARAMS.mtvYil} yıllık MTV`, tl(r.yillik), true)}${row('Taksit (Ocak ve Temmuz)', tl(r.taksit))}${row('Yaş grubu', r.grup)}${row(`${E.PARAMS.mtvYil + 1} üst sınır (%${fmt(E.PARAMS.yenidenDegerleme.oran)} aynen uygulanırsa)`, tl(r.tahminiSonrakiYil))}</div>`;
   },
   memur(f) {
     const maas = num(f.maas.value), enf = num(f.enf.value), tur = f.tur.value;

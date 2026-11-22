@@ -178,12 +178,12 @@ ${go}</form>`,
 <p>Yıllık vergi iki eşit taksitte ödenir: <b>Ocak</b> ve <b>Temmuz</b> ayları sonuna kadar.</p>
 <h3>${P.mtvYil} tarifesi (31.12.2017 ve öncesi tescilli otomobiller, yıllık TL)</h3><div class="tablewrap"><table><thead><tr><th>Motor hacmi (cm³)</th><th>1-3</th><th>4-6</th><th>7-11</th><th>12-15</th><th>16+</th></tr></thead><tbody>${rows}</tbody></table></div>
 <p>2018 ve sonrası tescilli araçlarda her motor hacmi diliminde taşıt değerine göre 2–3 ayrı satır vardır; hesaplama aracı doğru satırı seçer.</p>
-<h3>${yd.uygulanacakYil} MTV ne kadar olacak?</h3><p>MTV tutarları her yıl yeniden değerleme oranı kadar artırılır. ${yd.uygulanacakYil} için oran <b>%${fmt(yd.oran)}</b> olarak açıklandı. Hesaplama aracındaki ${yd.uygulanacakYil} tutarı bu oranla bulunmuş bir <b>tahmindir</b>; kesin tarife Aralık sonunda yayımlanacak tebliğle belli olur ve bu sayfa güncellenir.</p>`;
+<h3>${yd.uygulanacakYil} MTV ne kadar olacak?</h3><p>MTV tutarları her yıl yeniden değerleme oranıyla artırılır, ancak Cumhurbaşkanı daha düşük bir oran belirleyebilir: ${P.mtvYil} için yeniden değerleme oranı %25,49 iken MTV <b>%${fmt(P.mtvArtis, 2)}</b> artırıldı. ${yd.uygulanacakYil} için yeniden değerleme oranı <b>%${fmt(yd.oran)}</b>; hesaplama aracındaki ${yd.uygulanacakYil} tutarı bu oranın <b>aynen uygulanması</b> hâlindeki üst sınırdır. Kesin tarife Aralık sonunda yayımlanınca bu sayfa güncellenir.</p>`;
     },
     faq: [
       ['MTV ne zaman ödenir?', 'Yılda iki eşit taksitte: Ocak ve Temmuz ayları sonuna kadar.'],
       ['Taşıt değeri nedir?', '1 Ocak 2018 ve sonrası ilk kez tescil edilen araçlarda, ilk tescildeki KDV hariç satış bedelidir (faturada yazan tutar). Sonraki yıllarda bu sınırlar yeniden değerleme oranıyla güncellenir.'],
-      [`${P.yenidenDegerleme.uygulanacakYil} MTV zammı ne kadar?`, `Yeniden değerleme oranı kadar, yani %${fmt(P.yenidenDegerleme.oran)}.`],
+      [`${P.yenidenDegerleme.uygulanacakYil} MTV zammı ne kadar?`, `Henüz belli değil. Yeniden değerleme oranı %${fmt(P.yenidenDegerleme.oran)}; Cumhurbaşkanı MTV için daha düşük oran belirleyebilir (${P.mtvYil}’da %${fmt(P.mtvArtis, 2)} uygulandı). Kesin oran Aralık sonunda açıklanır.`],
     ],
   },
   {
@@ -205,7 +205,7 @@ ${go}</form>`,
     faq: [
       [`${P.kiraGeliri.yil} kira geliri istisnası ne kadar?`, `${fmt(P.kiraGeliri.istisna, 0)} TL.`],
       ['Kira geliri beyannamesi ne zaman verilir?', `1–31 Mart ${P.kiraGeliri.yil + 1} arasında; vergi Mart ve Temmuz aylarında iki taksitte ödenir.`],
-      ['Götürü gider mi gerçek gider mi?', 'Götürü gider yönteminde belge gerekmez ve istisna sonrası tutarın %15’i gider sayılır. Gerçek gider yönteminde belgeli giderler düşülür; seçilen yöntemden iki yıl geçmeden götürü gidere dönülemez.'],
+      ['Götürü gider mi gerçek gider mi?', 'Götürü gider yönteminde belge gerekmez ve istisna sonrası tutarın %15’i gider sayılır. Gerçek gider yönteminde belgeli giderler düşülür; giderin istisnaya isabet eden kısmı indirilemez. Götürü gider yöntemini seçen, iki yıl geçmeden gerçek gider yöntemine dönemez.'],
     ],
   },
   {
@@ -223,11 +223,11 @@ ${go}</form>`,
 <p>İş Kanunu’nun 47. maddesine göre ulusal bayram ve genel tatil günlerinde çalışan işçiye, o günün ücretine ek olarak <b>çalışılan her gün için bir günlük ücret</b> daha ödenir. Yani tatilde çalışılan gün için toplam iki günlük ücret alınır. Günlük ücret, aylık brüt ücretin 30’a bölünmesiyle bulunur.</p>
 <p>Örnek: aylık brüt 45.000 TL, Ramazan Bayramı’nda arife dahil 3,5 gün çalışma → günlük ${tl(r.gunluk)} × 3,5 = <b>${tl(r.ek)} brüt ek ödeme</b> (yaklaşık ${tl(r.netEk)} net).</p>
 <h3>2027 resmî tatil takvimi</h3><div class="tablewrap"><table><thead><tr><th>Tarih</th><th>Gün</th><th>Tatil</th><th>Süre</th></tr></thead><tbody>${rows}</tbody></table></div>
-<p>Hafta tatiline denk gelen bayram günü için de aynı kural geçerlidir. Fazla çalışma (haftalık 45 saatin üstü) ayrıca %50 zamlı ödenir: <a href="/fazla-mesai-hesaplama/">fazla mesai hesaplama</a>.</p>`;
+<p>Bayram günü hafta tatiline (Pazar) denk gelirse ödeme, o gün çalışılan süreye göre farklılaşabilir; bu durumda bordronuzu işvereninizle kontrol edin. Haftalık 45 saati aşan çalışma ayrıca %50 zamlı ödenir: <a href="/fazla-mesai-hesaplama/">fazla mesai hesaplama</a>.</p>`;
     },
     faq: [
       ['Bayramda çalışmak zorunlu mu?', 'Ulusal bayram ve genel tatillerde çalışılıp çalışılmayacağı iş sözleşmesi veya toplu sözleşmeyle belirlenir; hüküm yoksa işçinin onayı gerekir.'],
-      ['Arife günü tam gün mü?', 'Hayır. Arife günleri 13:00’ten itibaren yarım gün tatildir; çalışılırsa yarım günlük ek ücret ödenir.'],
+      ['Arife günü tam gün mü?', 'Hayır. Arife günleri saat 13:00’ten itibaren tatildir (yarım gün); bu saatten sonra çalışılırsa yarım günlük ek ücret ödenir.'],
       ['2027 Ramazan Bayramı ne zaman?', 'Arife 8 Mart Pazartesi; bayram 9–11 Mart 2027.'],
     ],
   },
@@ -457,21 +457,21 @@ export const INFO_PAGES = [
     faq: [['İlk vergi dilimi sınırı ne kadar?', '190.000 TL.'], ['Asgari ücretli vergi dilimine girer mi?', 'Asgari ücretin vergisi istisna olduğundan, asgari ücretli çalışan gelir vergisi ödemez.']],
   },
   {
-    path: `/gelir-vergisi-dilimleri-${P.yenidenDegerleme.uygulanacakYil}/`, short: `Vergi dilimleri ${P.yenidenDegerleme.uygulanacakYil}`, tile: P.yenidenDegerleme.uygulanacakYil > Y ? 'Tahmini tarife (yeniden değerleme ile)' : 'Ücret gelirleri tarifesi',
-    h1: `Gelir vergisi dilimleri ${P.yenidenDegerleme.uygulanacakYil} (tahmini)`,
-    title: `Gelir Vergisi Dilimleri ${P.yenidenDegerleme.uygulanacakYil} – Tahmini Tarife (%${fmt(P.yenidenDegerleme.oran)} Yeniden Değerleme)`,
-    description: `${P.yenidenDegerleme.uygulanacakYil} gelir vergisi dilimleri ne olacak? ${Y} tarifesinin %${fmt(P.yenidenDegerleme.oran)} yeniden değerleme oranıyla güncellenmiş tahmini hali; ücret ve ücret dışı gelirler için.`,
+    path: `/gelir-vergisi-dilimleri-${P.yenidenDegerleme.uygulanacakYil}/`, short: `Vergi dilimleri ${P.yenidenDegerleme.uygulanacakYil}`, tile: P.yenidenDegerleme.uygulanacakYil > Y ? 'Olası tarife (yeniden değerleme ile)' : 'Ücret gelirleri tarifesi',
+    h1: `Gelir vergisi dilimleri ${P.yenidenDegerleme.uygulanacakYil}: ne olacak?`,
+    title: `Gelir Vergisi Dilimleri ${P.yenidenDegerleme.uygulanacakYil} – %${fmt(P.yenidenDegerleme.oran)} Yeniden Değerlemeyle Olası Tarife`,
+    description: `${P.yenidenDegerleme.uygulanacakYil} gelir vergisi dilimleri ne olacak? %${fmt(P.yenidenDegerleme.oran)} yeniden değerleme oranı ve GVK 123'e göre her dilim sınırının yasal aralığı; ücret ve ücret dışı gelirler için.`,
     body: () => {
       const yd = P.yenidenDegerleme, N = yd.uygulanacakYil;
-      const tab = (now, est) => { let pa = 0, pb = 0; return now.map(([lim, r], i) => { const [l2] = est[i]; const row = `<tr><td>%${r * 100}</td><td>${lim === Infinity ? `${fmt(pa, 0)} TL üzeri` : `${fmt(pa, 0)} – ${fmt(lim, 0)} TL`}</td><td><b>${l2 === Infinity ? `${fmt(pb, 0)} TL üzeri` : `${fmt(pb, 0)} – ${fmt(l2, 0)} TL`}</b></td></tr>`; pa = lim; pb = l2; return row; }).join(''); };
-      return `<p class="lead">${N} gelir vergisi tarifesi henüz yayımlanmadı. Tarifedeki dilim tutarları her yıl yeniden değerleme oranıyla artırılır; ${N} için oran <b>%${fmt(yd.oran)}</b> olarak açıklandı. Aşağıdaki ${N} dilimleri bu oranla hesaplanmış <b>tahmindir</b> (1.000 TL'yi aşmayan kesirler atılmıştır). Resmî tebliğ Aralık sonunda yayımlanınca sayfa aynı gün güncellenir.</p>
-<h2>Ücret gelirleri</h2><div class="tablewrap"><table><thead><tr><th>Oran</th><th>${Y}</th><th>${N} (tahmini)</th></tr></thead><tbody>${tab(P.gvDilim, E.tahminiDilim(P.gvDilim))}</tbody></table></div>
-<h2>Ücret dışı gelirler (kira, serbest meslek, ticari kazanç)</h2><div class="tablewrap"><table><thead><tr><th>Oran</th><th>${Y}</th><th>${N} (tahmini)</th></tr></thead><tbody>${tab(P.gvDilimUcretDisi, E.tahminiDilim(P.gvDilimUcretDisi))}</tbody></table></div>
-<h2>Ne değişir?</h2><p>Dilimler genişlediği için aynı brüt maaşla bir üst dilime daha geç geçilir. Örneğin ${Y}'da %20 dilimi 190.000 TL'de başlarken, ${N}'de tahminen ${fmt(E.tahminiDilim(P.gvDilim)[0][0], 0)} TL'de başlayacak. Kendi bordronuz için <a href="/maas-hesaplama/">maaş hesaplama</a> aracını kullanın; güncel tarife: <a href="/gelir-vergisi-dilimleri-${Y}/">gelir vergisi dilimleri ${Y}</a>.</p>`;
+      const tab = (now) => { let pa = 0; return now.map(([lim, r]) => { const [lo, hi] = E.dilimAraligi(lim); const row = `<tr><td>%${r * 100}</td><td>${lim === Infinity ? `${fmt(pa, 0)} TL üzeri` : `${fmt(lim, 0)} TL'ye kadar`}</td><td>${lim === Infinity ? '—' : `<b>${fmt(lo, 0)} – ${fmt(hi, 0)} TL</b>`}</td></tr>`; pa = lim; return row; }).join(''); };
+      return `<p class="lead">${N} gelir vergisi tarifesi henüz yayımlanmadı. Tarifedeki dilim tutarları her yıl yeniden değerleme oranıyla artırılır; ${N} için oran <b>%${fmt(yd.oran)}</b> olarak açıklandı. Kanuna (GVK md. 123) göre yeniden değerlenen tutarların %5'ini aşmayan kesirler dikkate alınmaz; bu yüzden her ${N} dilim sınırı aşağıdaki aralıkta yer alacaktır. <b>Kesin tutarlar değil, yasal aralıktır.</b> Resmî tebliğ Aralık sonunda yayımlanınca sayfa aynı gün güncellenir.</p>
+<h2>Ücret gelirleri</h2><div class="tablewrap"><table><thead><tr><th>Oran</th><th>${Y}</th><th>${N} dilim sınırı (yasal aralık)</th></tr></thead><tbody>${tab(P.gvDilim)}</tbody></table></div>
+<h2>Ücret dışı gelirler (kira, serbest meslek, ticari kazanç)</h2><div class="tablewrap"><table><thead><tr><th>Oran</th><th>${Y}</th><th>${N} dilim sınırı (yasal aralık)</th></tr></thead><tbody>${tab(P.gvDilimUcretDisi)}</tbody></table></div>
+<h2>Ne değişir?</h2><p>Dilimler genişlediği için aynı brüt maaşla bir üst dilime daha geç geçilir. Örneğin ${Y}'da %20 dilimi 190.000 TL'de başlarken, ${N}'de ${fmt(E.dilimAraligi(190000)[0], 0)} – ${fmt(E.dilimAraligi(190000)[1], 0)} TL arasında bir tutarda başlayacak. Kendi bordronuz için <a href="/maas-hesaplama/">maaş hesaplama</a> aracını kullanın; güncel tarife: <a href="/gelir-vergisi-dilimleri-${Y}/">gelir vergisi dilimleri ${Y}</a>.</p>`;
     },
     faq: [
-      [`${P.yenidenDegerleme.uygulanacakYil} vergi dilimleri açıklandı mı?`, 'Henüz resmî tebliğ yayımlanmadı. Bu sayfadaki tutarlar yeniden değerleme oranıyla hesaplanmış tahminlerdir; tebliğ Aralık sonunda yayımlanır.'],
-      [`${P.yenidenDegerleme.uygulanacakYil} ilk vergi dilimi ne kadar olacak?`, `Tahminen ${fmt(E.tahminiDilim(P.gvDilim)[0][0], 0)} TL (${Y}: 190.000 TL).`],
+      [`${P.yenidenDegerleme.uygulanacakYil} vergi dilimleri açıklandı mı?`, 'Henüz resmî tebliğ yayımlanmadı. Bu sayfa, kanuna göre dilim sınırlarının hangi aralıkta olacağını gösterir; tebliğ Aralık sonunda yayımlanır ve sayfa aynı gün güncellenir.'],
+      [`${P.yenidenDegerleme.uygulanacakYil} ilk vergi dilimi ne kadar olacak?`, `Kesin tutar tebliğle belli olacak; yasal aralık ${fmt(E.dilimAraligi(190000)[0], 0)} – ${fmt(E.dilimAraligi(190000)[1], 0)} TL (${Y}: 190.000 TL).`],
       ['Yeniden değerleme oranı nedir?', 'Yurt içi üretici fiyat endeksindeki (Yİ-ÜFE) son 12 aylık artıştır. Vergi, harç ve ceza tutarları bir sonraki yıl bu oranla güncellenir.'],
     ],
   },

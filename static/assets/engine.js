@@ -44,6 +44,7 @@ export const PARAMS = {
   gvDilimUcretDisi: [[190000, 0.15], [400000, 0.20], [1000000, 0.27], [5300000, 0.35], [Infinity, 0.40]],
   // MTV (I) sayılı tarife, otomobil. [cc üst sınırı, [[taşıt değeri üst sınırı, [1-3, 4-6, 7-11, 12-15, 16+]], ...]]
   mtvYil: 2026,
+  mtvArtis: 18.95, // 2026 MTV artış oranı (Cumhurbaşkanı kararı; yeniden değerleme %25,49 idi)
   mtv2018: [
     [1300, [[309100, [5750, 4010, 2238, 1689, 593]], [541500, [6319, 4409, 2459, 1861, 655]], [Infinity, [6902, 4807, 2693, 2032, 706]]]],
     [1600, [[309100, [10016, 7510, 4354, 3077, 1181]], [541500, [11023, 8264, 4794, 3375, 1290]], [Infinity, [12028, 9012, 5220, 3685, 1408]]]],
@@ -306,9 +307,11 @@ export function memurEmekliZam({ maas, tur = 'emekli', enf, tsOnceki = PARAMS.me
   return { oran, fark, yeni: r2(maas * (1 + oran)), artis: r2(maas * oran) };
 }
 
-// Gelir vergisi tarifesi tahmini: dilim tutarları yeniden değerleme oranıyla artırılır, 1.000 TL'yi aşmayan kesirler atılır.
-export function tahminiDilim(dilim, oran = PARAMS.yenidenDegerleme.oran) {
-  return dilim.map(([lim, r]) => [lim === Infinity ? Infinity : Math.floor(lim * (1 + oran / 100) / 1000) * 1000, r]);
+// Gelir vergisi dilim sınırı aralığı (GVK 123): yeniden değerlenen tutarın %5'ini aşmayan kesirler dikkate alınmaz,
+// so the official limit lies between 95% and 100% of the revalued amount.
+export function dilimAraligi(lim, oran = PARAMS.yenidenDegerleme.oran) {
+  const hi = lim * (1 + oran / 100);
+  return [Math.ceil(hi * 0.95), Math.floor(hi)];
 }
 
 // MTV: otomobil, (I) sayılı tarife. modelYili → yaş grubu; 2018 ve sonrası tescilde taşıt değerine göre satır.

@@ -125,8 +125,7 @@ assert.equal(E.emlakVergisi({ deger: 5000000, muaf: true }).yillik, 0);
 }
 
 {
-  const d = E.tahminiDilim(E.PARAMS.gvDilim);
-  assert.deepEqual(d.slice(0, 4).map((x) => x[0]), [242000, 511000, 1917000, 6774000]);
+  assert.deepEqual(E.dilimAraligi(190000), [230734, 242877]);
   assert.equal(E.mtv({ cc: 1598, modelYili: 2023, deger: 450000 }).yillik, 8264);
   assert.equal(E.mtv({ cc: 1598, modelYili: 2023, deger: 450000 }).grup, '4-6');
   assert.equal(E.mtv({ cc: 1300, modelYili: 2026, deger: 200000 }).yillik, 5750);
