@@ -14,6 +14,8 @@ export async function onRequest({ request, params }) {
     });
   }
   let raw = Object.fromEntries(new URL(request.url).searchParams);
+  if (!['GET', 'POST'].includes(request.method)) return json({ error: 'Yalnızca GET ve POST.' }, 405);
+  if (+(request.headers.get('content-length') || 0) > 16384) return json({ error: 'İstek çok büyük.' }, 413);
   if (request.method === 'POST') { try { raw = { ...raw, ...(await request.json()) }; } catch { return json({ error: 'Gövde geçerli JSON değil.' }, 400); } }
   const out = runTool(name, coerce(name, raw));
   return json(out, out.error ? (out.araclar ? 404 : 400) : 200);

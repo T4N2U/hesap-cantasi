@@ -32,7 +32,7 @@ function layout({ path, title, description, body, schema = [], crumbs = [] }) {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [{ name: 'Ana sayfa', path: '/' }, ...crumbs].map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: SITE.url + c.path })),
   } : null;
-  const ld = [...schema, bc].filter(Boolean).map((s) => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join('');
+  const ld = [...schema, bc].filter(Boolean).map((s) => `<script type="application/ld+json">${JSON.stringify(s).replace(/</g, '\\u003c')}</script>`).join('');
   const crumbHtml = crumbs.length ? `<div class="crumbs"><a href="/">Ana sayfa</a> › ${crumbs.map((c, i) => i === crumbs.length - 1 ? esc(c.name) : `<a href="${c.path}">${esc(c.name)}</a>`).join(' › ')}</div>` : '';
   const html = `<!doctype html>
 <html lang="tr"><head>
@@ -348,6 +348,29 @@ layout({
 });
 
 if (SITE.adsenseClient) writeFileSync(join(OUT, 'ads.txt'), `google.com, ${SITE.adsenseClient.replace('ca-', '')}, DIRECT, f08c47fec0942fa0\n`);
-writeFileSync(join(OUT, '_headers'), `/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n`);
+// Security headers (OWASP A05). The CSP allows only our own scripts plus Cloudflare Web Analytics; widen it on
+// purpose (and only for the exact hosts) when AdSense or GA4 is switched on in site.mjs.
+const CSP_SCRIPT = ["'self'", 'https://static.cloudflareinsights.com', ...(SITE.adsenseClient ? ['https://pagead2.googlesyndication.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://*.google.com'] : []), ...(SITE.ga4 ? ['https://www.googletagmanager.com'] : [])];
+const CSP = [
+  "default-src 'self'", `script-src ${CSP_SCRIPT.join(' ')}`, "style-src 'self' 'unsafe-inline'", "img-src 'self' data:" + (SITE.adsenseClient ? ' https:' : ''),
+  "font-src 'self'", "connect-src 'self' https://cloudflareinsights.com" + (SITE.ga4 ? ' https://*.google-analytics.com' : ''),
+  SITE.adsenseClient ? "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com" : "frame-src 'none'",
+  "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'", 'upgrade-insecure-requests',
+].join('; ');
+writeFileSync(join(OUT, '_headers'), `/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Frame-Options: DENY
+  Content-Security-Policy: ${CSP}
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+/openapi.json
+  Access-Control-Allow-Origin: *
+/llms.txt
+  Access-Control-Allow-Origin: *
+`);
 
 console.log(`Built ${pages.length} pages → dist/`);

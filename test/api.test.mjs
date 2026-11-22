@@ -48,4 +48,13 @@ assert.equal(st, 200); assert.equal(j.result.serverInfo.name, 'hesap-cantasi');
 [, j] = await call({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'kidem_tazminati', arguments: { baslangic: '2020-01-01', bitis: '2026-05-01', brut: 65000 } } });
 assert.equal(j.result.isError, false); assert.ok(j.result.structuredContent.sonuc.net > 0);
 [, j] = await call({ jsonrpc: '2.0', id: 4, method: 'nope' }); assert.equal(j.error.code, -32601);
+{
+  const big = await mcp({ request: new Request('https://hesapcantasi.com/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': '100000' }, body: '{}' }) });
+  assert.equal(big.status, 413);
+  const batch = await mcp({ request: new Request('https://hesapcantasi.com/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Array(25).fill({ jsonrpc: '2.0', id: 1, method: 'ping' })) }) });
+  assert.equal(batch.status, 413);
+  const put = await rest({ request: new Request('https://hesapcantasi.com/api/v1/kdv', { method: 'PUT' }), params: { path: ['kdv'] } });
+  assert.equal(put.status, 405);
+  assert.equal(put.headers.get('x-frame-options'), 'DENY');
+}
 console.log('API and MCP tests passed (' + TOOLS.length + ' tools)');

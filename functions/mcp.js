@@ -1,11 +1,11 @@
 // Remote MCP server (Streamable HTTP, stateless JSON responses). Add https://hesapcantasi.com/mcp as a
 // custom connector in Claude, ChatGPT or any MCP client to use the calculators as tools.
 import { TOOLS, runTool, coerce, schemaFor } from '../lib/tools.js';
-import { CORS } from '../lib/cors.js';
+import { CORS, SECURITY } from '../lib/cors.js';
 import { PARAMS } from '../static/assets/engine.js';
 
 const PROTOCOL = '2025-06-18';
-const reply = (body, status = 200) => new Response(body == null ? null : JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...CORS } });
+const reply = (body, status = 200) => new Response(body == null ? null : JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...SECURITY, ...CORS } });
 const ok = (id, result) => ({ jsonrpc: '2.0', id, result });
 const fail = (id, code, message) => ({ jsonrpc: '2.0', id, error: { code, message } });
 
@@ -33,10 +33,12 @@ function handle(msg) {
 
 export async function onRequest({ request }) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
-  if (request.method === 'GET') return new Response('Hesap Çantası MCP server. POST JSON-RPC to this URL (Streamable HTTP). Tools: ' + TOOLS.map((t) => t.name).join(', '), { status: 405, headers: { Allow: 'POST', 'Content-Type': 'text/plain; charset=utf-8', ...CORS } });
+  if (request.method === 'GET') return new Response('Hesap Çantası MCP server. POST JSON-RPC to this URL (Streamable HTTP). Tools: ' + TOOLS.map((t) => t.name).join(', '), { status: 405, headers: { Allow: 'POST', 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY, ...CORS } });
   if (request.method !== 'POST') return reply(null, 405);
+  if (+(request.headers.get('content-length') || 0) > 65536) return reply(fail(null, -32600, 'Request too large'), 413);
   let body;
   try { body = await request.json(); } catch { return reply(fail(null, -32700, 'Parse error'), 400); }
+  if (Array.isArray(body) && body.length > 20) return reply(fail(null, -32600, 'Batch too large'), 413);
   if (Array.isArray(body)) { const out = body.map(handle).filter(Boolean); return out.length ? reply(out) : reply(null, 202); }
   const out = handle(body);
   return out ? reply(out) : reply(null, 202);

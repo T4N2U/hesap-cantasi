@@ -10,6 +10,18 @@ People use these calculators for decisions about their pay, taxes, rent and pens
 - Every new or changed formula gets a test in `test/engine.test.mjs` against a published worked example.
 - When an official figure is published, update the page the same day and remove the "tahmini/senaryo" wording.
 
+## Security rule (from the owner; non-negotiable)
+Every new feature or change is reviewed against the OWASP Top 10 (and the OWASP API Security Top 10 for anything under `/api` or `/mcp`) before it ships. Don't leave an open door behind, from outside or from inside the machine.
+
+Checklist for each change:
+- **Inputs:** every value from a URL, form, API or MCP call is validated (type, range, length, enum or pattern). Unknown parameters are rejected. No unbounded loops or allocations driven by input (`lib/tools.js` enforces min/max).
+- **Output:** never put user input into HTML with `innerHTML`; results render numbers we compute. JSON in `<script>` tags escapes `<`.
+- **Headers:** the site CSP, HSTS, frame and permissions headers come from `src/build.mjs` (`_headers`); API/MCP responses use `SECURITY` in `lib/cors.js`. When adding a third-party script (AdSense, GA4), allow only its exact hosts in the CSP.
+- **Errors:** don't expose stack traces or internal messages.
+- **Secrets:** none in the repo, ever. The API and MCP server are read-only, need no keys and store nothing; if that ever changes, add auth and rate limits first.
+- **Dependencies:** keep vendored libraries patched. Known open item: `static/assets/vendor/xlsx.mini.min.js` is SheetJS 0.18.5 (CVE-2023-30533, CVE-2024-22363 affect *parsing* files; we only *write* exports, so exposure is low) — upgrade to 0.20.3 from cdn.sheetjs.com when reachable.
+- **Tests:** add a test for each validation rule you add (`test/api.test.mjs`).
+
 ## Build
 `npm test` then `npm run build` (output in `dist/`). Push to `main`; Cloudflare Pages deploys automatically.
 
