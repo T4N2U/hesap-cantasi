@@ -23,6 +23,10 @@ assert.equal(runTool('mevduat_faizi', { tutar: 100000, yillikFaiz: 40, gun: 32 }
 assert.equal(runTool('ikramiye', { brut: 75000, ikramiye: 75000 }).sonuc.net, 45968.25);
 assert.equal(runTool('mtv', { cc: 1598, modelYili: 2023, deger: 450000 }).sonuc.yillik, 8264);
 assert.ok(runTool('kdv', {}).error);
+assert.ok(runTool('kredi_taksit', { tutar: 1000, vade: 1e9, aylikFaiz: 3 }).error, 'unbounded vade must be refused');
+assert.ok(runTool('kidem_tazminati', { baslangic: 'x', bitis: '2026-01-01', brut: 1 }).error);
+assert.ok(runTool('kredi_taksit', { tutar: 1000, vade: 12, aylikFaiz: 3, tur: '<script>' }).error);
+assert.ok(runTool('kdv', { tutar: 1, oran: 20, foo: 1 }).error);
 assert.ok(runTool('yok', {}).error);
 assert.equal(coerce('maas_brutten_nete', { brut: '50.000' }).brut, 50000);
 assert.equal(coerce('maas_brutten_nete', { brut: '50000.5' }).brut, 50000.5);
