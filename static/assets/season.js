@@ -23,9 +23,10 @@ export const GUNDEM = [
   { path: '/mtv-hesaplama/', note: 'MTV 1. taksit: son gün Ocak sonu', from: '01-02', to: '01-31', prio: 8 },
   { path: '/mtv-hesaplama/', note: 'MTV 2. taksit: son gün Temmuz sonu', from: '07-01', to: '07-31', prio: 8 },
   { path: '/mtv-hesaplama/', note: 'Yeni yıl MTV tutarları', from: '12-20', to: '01-01', prio: 6 },
+  { path: '/kira-geliri-vergisi-hesaplama/', note: 'Kira geliri beyannamesi: son gün 31 Mart', from: '02-15', to: '03-31', prio: 8 },
   { path: '/kira-artis-hesaplama/', note: 'Bu ayın kira artış oranı açıklandı', days: [3, 10], prio: 8 },
-  { path: '/fazla-mesai-hesaplama/', note: 'Ramazan Bayramı’nda çalışma ücreti', from: '2027-02-25', to: '2027-03-12', prio: 8 },
-  { path: '/fazla-mesai-hesaplama/', note: 'Kurban Bayramı’nda çalışma ücreti', from: '2027-05-05', to: '2027-05-20', prio: 8 },
+  { path: '/bayram-mesaisi-hesaplama/', note: 'Ramazan Bayramı’nda çalışma ücreti', from: '2027-02-25', to: '2027-03-12', prio: 8 },
+  { path: '/bayram-mesaisi-hesaplama/', note: 'Kurban Bayramı’nda çalışma ücreti', from: '2027-05-05', to: '2027-05-20', prio: 8 },
   { path: '/yillik-izin-hesaplama/', note: 'Tatil sezonu: kaç gün iznin var?', from: '05-15', to: '08-31', prio: 5 },
   { path: '/tapu-harci-hesaplama/', note: 'Ev alım sezonu: tapu masrafları', from: '03-01', to: '06-30', prio: 5 },
 ];

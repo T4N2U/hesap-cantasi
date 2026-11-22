@@ -56,6 +56,15 @@ export const PARAMS = {
     [Infinity, [[3683200, [251554, 188627, 111714, 50206, 19472]], [Infinity, [274415, 205781, 121873, 54769, 21251]]]],
   ],
   mtvEski: [[1300, [5750, 4010, 2238, 1689, 593]], [1600, [10016, 7510, 4354, 3077, 1181]], [1800, [17705, 13829, 8145, 4957, 1917]], [2000, [27898, 21478, 12624, 7510, 2958]], [2500, [41840, 30372, 18977, 11333, 4479]], [3000, [58347, 50754, 31704, 17044, 6255]], [3500, [88859, 79955, 48158, 24031, 8813]], [4000, [139721, 120647, 71048, 31704, 12624]], [Infinity, [228681, 171485, 101555, 45632, 17705]]],
+  // Konut kira geliri (GVK 21): gelir yılı istisnası; toplam gelir sınırı = ücret tarifesinin 3. dilim sınırı.
+  kiraGeliri: { yil: 2026, istisna: 58000, toplamSinir: 1500000, beyanSiniri: 22000 },
+  // Ulusal bayram ve genel tatiller (2429 s. Kanun). yarim: arife / 28 Ekim öğleden sonra.
+  tatiller2027: [
+    ['2027-01-01', 'Yılbaşı', 1], ['2027-03-08', 'Ramazan Bayramı arifesi', 0.5], ['2027-03-09', 'Ramazan Bayramı 1. gün', 1], ['2027-03-10', 'Ramazan Bayramı 2. gün', 1], ['2027-03-11', 'Ramazan Bayramı 3. gün', 1],
+    ['2027-04-23', 'Ulusal Egemenlik ve Çocuk Bayramı', 1], ['2027-05-01', 'Emek ve Dayanışma Günü', 1], ['2027-05-15', 'Kurban Bayramı arifesi', 0.5],
+    ['2027-05-16', 'Kurban Bayramı 1. gün', 1], ['2027-05-17', 'Kurban Bayramı 2. gün', 1], ['2027-05-18', 'Kurban Bayramı 3. gün', 1], ['2027-05-19', 'Kurban Bayramı 4. gün · Atatürk’ü Anma, Gençlik ve Spor Bayramı', 1],
+    ['2027-07-15', 'Demokrasi ve Millî Birlik Günü', 1], ['2027-08-30', 'Zafer Bayramı', 1], ['2027-10-28', 'Cumhuriyet Bayramı arifesi', 0.5], ['2027-10-29', 'Cumhuriyet Bayramı', 1],
+  ],
   kiraOranlari: [ // 12 aylık ortalama TÜFE — uygulandığı ay
     { ay: 'Kasım 2026', oran: 31.23 },
     { ay: 'Ekim 2026', oran: 31.49 },
@@ -313,6 +322,25 @@ export function mtv({ cc, modelYili, deger = 0, tescil2018 = true, yil = PARAMS.
   } else tutar = PARAMS.mtvEski.find(([lim]) => cc <= lim)[1][g];
   const t2 = Math.floor(tutar * (1 + PARAMS.yenidenDegerleme.oran / 100));
   return { yas, grup: ['1-3', '4-6', '7-11', '12-15', '16 ve üzeri'][g], yillik: tutar, taksit: tutar / 2, tahminiSonrakiYil: t2 };
+}
+
+// Konut kira geliri vergisi (götürü gider %15 istisnadan sonra uygulanır; ücret dışı gelir tarifesi).
+export function kiraGeliriVergisi({ yillik, gider = 'goturu', gercekGider = 0, digerGelir = 0, ticari = false }) {
+  const K = PARAMS.kiraGeliri;
+  const istisnaVar = !ticari && yillik + digerGelir <= K.toplamSinir;
+  const istisna = istisnaVar ? Math.min(K.istisna, yillik) : 0;
+  const kalan = yillik - istisna;
+  const giderTutar = gider === 'goturu' ? kalan * 0.15 : Math.max(0, gercekGider * (kalan / (yillik || 1)));
+  const matrah = Math.max(0, kalan - giderTutar);
+  const vergi = gelirVergisi(matrah, PARAMS.gvDilimUcretDisi);
+  return { istisna: r2(istisna), istisnaVar, gider: r2(giderTutar), matrah: r2(matrah), vergi: r2(vergi), taksit: r2(vergi / 2), beyanGerekir: yillik > istisna, efektif: yillik ? vergi / yillik : 0 };
+}
+
+// Bayram ve genel tatil mesaisi (4857 m.47): çalışılan her tatil günü için bir günlük ilave ücret.
+export function bayramMesaisi({ brut, gun, ay = 3 }) {
+  const gunluk = brut / 30, ek = gunluk * gun;
+  const net = ikramiye({ brut, ikramiye: ek, ay }).net;
+  return { gunluk: r2(gunluk), ek: r2(ek), netEk: r2(net) };
 }
 
 // Fazla mesai (4857 m.41): saatlik brüt = aylık brüt / 225; fazla çalışma %50, fazla sürelerle çalışma %25 zamlı.

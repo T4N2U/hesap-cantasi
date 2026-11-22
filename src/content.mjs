@@ -187,6 +187,51 @@ ${go}</form>`,
     ],
   },
   {
+    path: '/kira-geliri-vergisi-hesaplama/', short: 'Kira geliri vergisi', tile: `${P.kiraGeliri.yil} konut kira beyanı, istisna ${fmt(P.kiraGeliri.istisna, 0)} TL`,
+    h1: `Kira geliri vergisi hesaplama (${P.kiraGeliri.yil} geliri, ${P.kiraGeliri.yil + 1} beyanı)`,
+    title: `Kira Geliri Vergisi Hesaplama ${P.kiraGeliri.yil + 1} – ${fmt(P.kiraGeliri.istisna, 0)} TL İstisna, Götürü Gider ve Ödenecek Vergi`,
+    description: `${P.kiraGeliri.yil} yılı konut kira geliriniz için ${P.kiraGeliri.yil + 1} Mart'ta ödenecek gelir vergisini hesaplayın: ${fmt(P.kiraGeliri.istisna, 0)} TL istisna, %15 götürü gider, vergi dilimi ve taksitler.`,
+    lead: 'Konutunuzdan aldığınız kirayı girin. Hesaplama istisnayı, götürü gideri ve vergi dilimlerini uygular.',
+    form: `<form class="calc" data-calc="kirageliri"><div class="row2">${money('kira', 'Kira tutarı (₺)', '20.000')}<label>Tutar<select name="donem"><option value="aylik">Aylık</option><option value="yillik">Yıllık</option></select></label></div><div class="row2"><label>Gider yöntemi<select name="gider"><option value="goturu">Götürü gider (%15)</option><option value="gercek">Gerçek gider</option></select></label><div data-gercek>${money('gg', 'Yıllık gerçek gider (₺)', '')}</div></div>${money('diger', 'Diğer yıllık brüt gelirleriniz (ücret vb., ₺)', '')}<label class="check"><input type="checkbox" name="ticari"> Ticari, zirai veya mesleki kazancım var</label>${go}</form>`,
+    content: () => {
+      const K = P.kiraGeliri, r = E.kiraGeliriVergisi({ yillik: 240000 });
+      return `<h2>Kira geliri vergisi nasıl hesaplanır?</h2>
+<p>${K.yil} yılında elde edilen konut kira gelirinin <b>${tl(K.istisna)}</b> kısmı vergiden istisnadır. Kalan tutardan götürü gider yönteminde <b>%15</b> düşülür ve sonuç ücret dışı gelirler tarifesine göre vergilendirilir.</p>
+<p>Örnek: ayda 20.000 TL (yılda 240.000 TL) kira geliri → istisna ${tl(r.istisna)} → kalan ${tl(240000 - r.istisna)} → %15 götürü gider ${tl(r.gider)} → matrah ${tl(r.matrah)} → vergi <b>${tl(r.vergi)}</b> (iki taksitte ${tl(r.taksit)}).</p>
+<h3>İstisnadan kimler yararlanamaz?</h3><p>Ticari, zirai veya mesleki kazancı olanlar ile ücret, kira ve diğer gelirlerinin brüt toplamı ${K.yil} için <b>${tl(K.toplamSinir)}</b> tutarını aşanlar istisnadan yararlanamaz. Beyannamesini süresinde vermeyenler de istisnayı kaybeder.</p>
+<h3>Beyan ve ödeme tarihleri</h3><p>Beyanname <b>1–31 Mart ${K.yil + 1}</b> arasında Hazır Beyan Sistemi üzerinden verilir. Vergi iki eşit taksitte ödenir: 1. taksit 31 Mart, 2. taksit 31 Temmuz ${K.yil + 1}.</p>
+<p>İşyeri kiralarında kiracı %20 stopaj keser; bu sayfa konut kira gelirleri içindir. Bu yılki kira artışını hesaplamak için <a href="/kira-artis-hesaplama/">kira artış hesaplama</a>.</p>`;
+    },
+    faq: [
+      [`${P.kiraGeliri.yil} kira geliri istisnası ne kadar?`, `${fmt(P.kiraGeliri.istisna, 0)} TL.`],
+      ['Kira geliri beyannamesi ne zaman verilir?', `1–31 Mart ${P.kiraGeliri.yil + 1} arasında; vergi Mart ve Temmuz aylarında iki taksitte ödenir.`],
+      ['Götürü gider mi gerçek gider mi?', 'Götürü gider yönteminde belge gerekmez ve istisna sonrası tutarın %15’i gider sayılır. Gerçek gider yönteminde belgeli giderler düşülür; seçilen yöntemden iki yıl geçmeden götürü gidere dönülemez.'],
+    ],
+  },
+  {
+    path: '/bayram-mesaisi-hesaplama/', short: 'Bayram mesaisi', tile: 'Bayram ve resmî tatilde çalışma ücreti',
+    h1: 'Bayram mesaisi hesaplama: resmî tatilde çalışma ücreti',
+    title: 'Bayram Mesaisi Hesaplama 2027 – Ramazan ve Kurban Bayramında Çalışma Ücreti',
+    description: 'Ramazan Bayramı, Kurban Bayramı ve resmî tatillerde çalışırsanız ne kadar ek ücret alırsınız? Günlük ücret, arife yarım günü ve 2027 tatil takvimi.',
+    lead: 'Brüt maaşınızı ve tatilde çalıştığınız gün sayısını girin (arife günleri yarım gündür).',
+    form: `<form class="calc" data-calc="bayram"><div class="row2">${money('brut', 'Aylık brüt maaş (₺)', '45.000')}<label>Çalışılan tatil günü<input name="gun" inputmode="decimal" value="3,5"></label></div><label>Ödeneceği ay<select name="ay">${['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'].map((m, i) => `<option value="${i + 1}"${i === 2 ? ' selected' : ''}>${m}</option>`).join('')}</select></label>${go}</form>`,
+    content: () => {
+      const gun = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+      const rows = P.tatiller2027.map(([d, ad, k]) => { const x = new Date(d + 'T12:00'); return `<tr><td>${x.getDate()} ${E.AYLAR[x.getMonth()]}</td><td>${gun[x.getDay()]}</td><td>${ad}</td><td>${k === 1 ? 'Tam gün' : 'Yarım gün'}</td></tr>`; }).join('');
+      const r = E.bayramMesaisi({ brut: 45000, gun: 3.5 });
+      return `<h2>Bayramda çalışana ne kadar ödenir?</h2>
+<p>İş Kanunu’nun 47. maddesine göre ulusal bayram ve genel tatil günlerinde çalışan işçiye, o günün ücretine ek olarak <b>çalışılan her gün için bir günlük ücret</b> daha ödenir. Yani tatilde çalışılan gün için toplam iki günlük ücret alınır. Günlük ücret, aylık brüt ücretin 30’a bölünmesiyle bulunur.</p>
+<p>Örnek: aylık brüt 45.000 TL, Ramazan Bayramı’nda arife dahil 3,5 gün çalışma → günlük ${tl(r.gunluk)} × 3,5 = <b>${tl(r.ek)} brüt ek ödeme</b> (yaklaşık ${tl(r.netEk)} net).</p>
+<h3>2027 resmî tatil takvimi</h3><div class="tablewrap"><table><thead><tr><th>Tarih</th><th>Gün</th><th>Tatil</th><th>Süre</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p>Hafta tatiline denk gelen bayram günü için de aynı kural geçerlidir. Fazla çalışma (haftalık 45 saatin üstü) ayrıca %50 zamlı ödenir: <a href="/fazla-mesai-hesaplama/">fazla mesai hesaplama</a>.</p>`;
+    },
+    faq: [
+      ['Bayramda çalışmak zorunlu mu?', 'Ulusal bayram ve genel tatillerde çalışılıp çalışılmayacağı iş sözleşmesi veya toplu sözleşmeyle belirlenir; hüküm yoksa işçinin onayı gerekir.'],
+      ['Arife günü tam gün mü?', 'Hayır. Arife günleri 13:00’ten itibaren yarım gün tatildir; çalışılırsa yarım günlük ek ücret ödenir.'],
+      ['2027 Ramazan Bayramı ne zaman?', 'Arife 8 Mart Pazartesi; bayram 9–11 Mart 2027.'],
+    ],
+  },
+  {
     path: '/zam-hesaplama/', short: 'Zam hesaplama', tile: 'Maaş zammı oranı ve yeni maaş',
     h1: 'Maaş zammı hesaplama',
     title: 'Zam Hesaplama – Maaş Zammı Yüzde Kaç? Yeni Maaş Ne Kadar?',

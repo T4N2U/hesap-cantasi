@@ -120,6 +120,19 @@ const CALCS = {
     const r = E.tapuHarci({ bedel });
     return `<div class="summary">${row('Alıcının ödeyeceği harç', tl(r.alici), true)}${row('Satıcının ödeyeceği harç', tl(r.satici))}${row('Toplam tapu harcı', tl(r.toplam))}</div><p class="note">Döner sermaye ücreti ayrıca alınır. Beyan edilen bedel emlak vergisi değerinin altında olamaz.</p>`;
   },
+  kirageliri(f) {
+    const yillik = num(f.kira.value) * (f.donem.value === 'aylik' ? 12 : 1), diger = num(f.diger.value) || 0, gg = num(f.gg.value) || 0;
+    if (!(yillik > 0)) return err('Kira tutarını girin.');
+    const r = E.kiraGeliriVergisi({ yillik, gider: f.gider.value, gercekGider: gg, digerGelir: diger, ticari: f.ticari.checked });
+    const K = E.PARAMS.kiraGeliri;
+    return `<div class="summary">${row('Ödenecek gelir vergisi', tl(r.vergi), true)}${row('Taksit (Mart ve Temmuz)', tl(r.taksit))}${row('Yıllık kira geliri', tl(yillik))}${row('Konut istisnası', r.istisnaVar ? tl(r.istisna) : 'Uygulanmaz')}${row(f.gider.value === 'goturu' ? 'Götürü gider (%15)' : 'Gerçek gider', tl(r.gider))}${row('Vergi matrahı', tl(r.matrah))}${row('Kira gelirine göre vergi oranı', pct(r.efektif))}</div>${!r.istisnaVar ? `<p class="note">İstisna uygulanmadı: ticari, zirai veya mesleki kazancı olanlar ile ücret, kira ve diğer gelirlerinin toplamı ${tl(K.toplamSinir)} tutarını aşanlar yararlanamaz.</p>` : ''}${yillik <= K.istisna ? '<p class="note">Yıllık konut kira geliriniz istisna tutarının altında; beyanname vermeniz gerekmez.</p>' : ''}`;
+  },
+  bayram(f) {
+    const brut = num(f.brut.value), gun = num(f.gun.value), ay = num(f.ay.value) || 3;
+    if (!(brut > 0) || !(gun > 0)) return err('Brüt maaşı ve çalışılan tatil gününü girin.');
+    const r = E.bayramMesaisi({ brut, gun, ay });
+    return `<div class="summary">${row('Ek bayram mesaisi (brüt)', tl(r.ek), true)}${row('Eline geçecek ek (yaklaşık net)', tl(r.netEk))}${row('Günlük brüt ücret', tl(r.gunluk))}${row('Çalışılan gün', fmt(gun, gun % 1 ? 1 : 0) + ' gün')}</div><p class="note">Bu tutar normal maaşınıza ek olarak ödenir. Arife günleri yarım gün sayılır.</p>`;
+  },
   mtv(f) {
     const cc = num(f.cc.value), yil = num(f.yil.value), deger = num(f.deger.value), tescil2018 = f.tescil.value === 'yeni';
     if (!(cc > 0) || !(yil > 1950)) return err('Motor hacmini ve model yılını girin.');
@@ -258,6 +271,12 @@ document.addEventListener('click', async (e) => {
 });
 
 document.querySelectorAll('form.calc').forEach(bind);
+
+// Kira geliri: real-expense field only when chosen
+document.querySelectorAll('form[data-calc="kirageliri"]').forEach((f) => {
+  const sync = () => f.querySelectorAll('[data-gercek]').forEach((el) => { el.hidden = f.gider.value !== 'gercek'; });
+  f.addEventListener('change', sync); sync();
+});
 
 // MTV: taşıt değeri only for 2018+ registrations
 document.querySelectorAll('form[data-calc="mtv"]').forEach((f) => {

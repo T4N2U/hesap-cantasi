@@ -133,4 +133,12 @@ assert.equal(E.emlakVergisi({ deger: 5000000, muaf: true }).yillik, 0);
   assert.equal(E.mtv({ cc: 1995, modelYili: 2015, tescil2018: false }).yillik, 7510);
   assert.equal(E.mtv({ cc: 5000, modelYili: 2026, deger: 5e6 }).yillik, 274415);
 }
+{
+  const k = E.kiraGeliriVergisi({ yillik: 240000 });
+  assert.equal(k.istisna, 58000); assert.equal(k.matrah, 154700); assert.equal(k.vergi, 23205);
+  const k2 = E.kiraGeliriVergisi({ yillik: 240000, digerGelir: 1400000 });
+  assert.equal(k2.istisnaVar, false);
+  const b = E.bayramMesaisi({ brut: 45000, gun: 3.5 });
+  assert.equal(b.ek, 5250);
+}
 console.log('All engine tests passed');
