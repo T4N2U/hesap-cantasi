@@ -19,7 +19,7 @@ Only the arrangement changes. Keep it safe: calm tempo, soft attacks, gentle or 
 | `playful-marimba` | bouncy marimba arpeggio, shaker | kıdem tazminatı (long + Short) |
 | `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | işsizlik maaşı (long + Short) |
 | `acoustic-pluck` | nylon-guitar arpeggio, shaker | maaş: Aralık'ta maaşım neden düşüyor? (long + Short) |
-| `rhodes-groove` | warm electric piano, soft pop beat | emlak vergisi (long + Short) |
+| `rhodes-groove` | warm electric piano, soft pop beat | emlak vergisi (long + Short); vergi dilimleri 2027 (template) |
 | `musicbox-light` | music box over a pad, no drums | ikramiye (long + Short) |
 | `soft-pad` | sustained pads, music-box melody, heartbeat kick | 2027 asgari ücret senaryoları (long + Short) |
 
