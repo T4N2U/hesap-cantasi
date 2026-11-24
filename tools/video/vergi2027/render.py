@@ -5,6 +5,8 @@ Re-render after the tebliğ: `node data.mjs > data.json && python3 render.py lon
 Visual variant: dark slate ground, amber (vergi) accent, a tax staircase, bars that grow upward. Music: rhodes-groove.
 Usage: python3 render.py long|short [stills]"""
 import json, os, subprocess, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import endscreen as ES
 from PIL import Image, ImageDraw, ImageFont
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else 'long'
@@ -157,16 +159,26 @@ def s_range(fr, t, dur):
 
 def s_cta(fr, t, dur):
     fr.d.rectangle((0, 0, W, H), fill=AMBER)
-    lg = logo(120); fr.im.paste(lg, (CX - 60, 150 if L else 420), lg)
-    fade(fr, t, .1, lambda d: T(d, (CX, 360 if L else 640), 'Kendi bordronu hesapla', F('k', 76 if L else 62), BG, 'mm'))
+    if L:  # long: everything above SAFE_BOTTOM, end-screen zones left clear (see ../endscreen.py)
+        lg = logo(100); fr.im.paste(lg, (CX - 50, 70), lg)
+        fade(fr, t, .1, lambda d: T(d, (CX, 250), 'Kendi bordronu hesapla', F('k', 76), BG, 'mm'))
+        def url(d):
+            d.rounded_rectangle((CX - 480, 315, CX + 480, 415), 50, fill=BG)
+            T(d, (CX, 365), 'hesapcantasi.com/maas-hesaplama', F('k', 46), INK, 'mm')
+        fade(fr, t, .7, url)
+        fade(fr, t, 1.4, lambda d: T(d, (CX, 470), '12 aylık bordro · hangi ay hangi dilim', F('s', 38), BG, 'mm'))
+        fade(fr, t, 2.0, lambda d: ES.labels(d, F('b', 34), BG))
+        return
+    lg = logo(120); fr.im.paste(lg, (CX - 60, 420), lg)
+    fade(fr, t, .1, lambda d: T(d, (CX, 640), 'Kendi bordronu hesapla', F('k', 62), BG, 'mm'))
     def url(d):
-        w2 = 480 if L else (R - M) // 2; y = 470 if L else 760
+        w2 = (R - M) // 2; y = 760
         d.rounded_rectangle((CX - w2, y, CX + w2, y + 110), 55, fill=BG)
-        T(d, (CX, y + 55), 'hesapcantasi.com/maas-hesaplama' if L else 'hesapcantasi.com', F('k', 46 if L else 60), INK, 'mm')
+        T(d, (CX, y + 55), 'hesapcantasi.com', F('k', 60), INK, 'mm')
     fade(fr, t, .7, url)
-    fade(fr, t, 1.4, lambda d: T(d, (CX, 660 if L else 940), '12 aylık bordro · hangi ay hangi dilim', F('s', 40 if L else 34), BG, 'mm'))
+    fade(fr, t, 1.4, lambda d: T(d, (CX, 940), '12 aylık bordro · hangi ay hangi dilim', F('s', 34), BG, 'mm'))
 
-LONG = [(s_hook, 4.5), (s_stairs, 6.5), (s_months, 8.5), (s_drop, 6.5)] + ([] if OFFICIAL else [(s_range, 5.5)]) + [(s_cta, 5.5)]
+LONG = [(s_hook, 4.5), (s_stairs, 6.5), (s_months, 8.5), (s_drop, 6.5)] + ([] if OFFICIAL else [(s_range, 5.5)]) + [(s_cta, ES.CTA_SEC)]
 SHORT = [(s_hook, 3.5), (s_months, 8.0), (s_cta, 4.5)]
 SCENES = LONG if L else SHORT
 
@@ -197,9 +209,11 @@ def render(i):
 if __name__ == '__main__':
     if sys.argv[2:3] == ['stills']:
         for i, (fn, dur) in enumerate(SCENES): draw(i, dur - .4).save(f'{OUT}/still{i}.jpg', quality=85)
+        if L: ES.guides(draw(len(SCENES) - 1, 3.0)).save(f'{OUT}/still-endscreen-guides.jpg', quality=85)
     else:
         for i in range(len(SCENES)): render(i)
         with open(f'{OUT}/list.txt', 'w') as f:
             for i in range(len(SCENES)): f.write(f"file 's{i:02d}.mp4'\n")
         subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', f'{OUT}/list.txt', '-c', 'copy', f'{OUT}/silent.mp4'], check=True)
         print('done', sum(d for _, d in SCENES))
+        if L: print('end screen from', ES.start_time(SCENES), 's')

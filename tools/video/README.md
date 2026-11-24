@@ -55,3 +55,14 @@ Copy `quick/samples/kira-ornek.json` or `faiz-ornek.json`, put in the real figur
 - Kira artış oranı: TÜİK, usually the 3rd of each month at 10:00. Update `kiraOranlari` in `engine.js` and push first, so the site matches the video.
 - Faiz kararı: TCMB PPK days (10 Dec, 21 Jan, 18 Mar, 22 Apr, 10 Jun …). Link the mevduat or kredi page.
 - Default music `playful-marimba`; set `"preset"` to vary it.
+
+## End screens (long videos)
+
+Every long video ends with a **10 s closing scene designed for YouTube's end screen** (`endscreen.py`):
+- All closing-scene content stays above y = 520 (`SAFE_BOTTOM`). The bottom-left (video box) and bottom-right
+  (Subscribe circle) zones stay empty, with small "Sıradaki video" / "Abone ol" hints above them.
+- Scene length `CTA_SEC` = 10 s (YouTube allows 5–20 s).
+- `python3 render.py long stills` also writes `still-endscreen-guides.jpg` with the zones drawn in red. Check it before the full render.
+- After rendering, `render.py` prints `end screen from N s`. In Studio, go to Editor → End screen → Apply template →
+  "1 video, 1 subscribe", and set both elements to start at N s. Use a specific related video if one is public, otherwise "Best for viewer".
+- Shorts have no end screens; for those, use the Short's "Related video" link (only public videos can be picked).
