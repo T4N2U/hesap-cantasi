@@ -9,5 +9,6 @@ export const SITE = {
   adsenseClient: '',
   // Optional: Google Analytics 4 / Cloudflare Web Analytics token. Empty = off.
   ga4: '',
-  cfBeacon: '',
+  // Cloudflare Web Analytics (cookieless). Public site token from dash → Web analytics → hesapcantasi.com.
+  cfBeacon: '1f49337c0766468b8d409a99fe9ed095',
 };

@@ -350,10 +350,11 @@ layout({
 if (SITE.adsenseClient) writeFileSync(join(OUT, 'ads.txt'), `google.com, ${SITE.adsenseClient.replace('ca-', '')}, DIRECT, f08c47fec0942fa0\n`);
 // Security headers (OWASP A05). The CSP allows only our own scripts plus Cloudflare Web Analytics; widen it on
 // purpose (and only for the exact hosts) when AdSense or GA4 is switched on in site.mjs.
-const CSP_SCRIPT = ["'self'", 'https://static.cloudflareinsights.com', ...(SITE.adsenseClient ? ['https://pagead2.googlesyndication.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://*.google.com'] : []), ...(SITE.ga4 ? ['https://www.googletagmanager.com'] : [])];
+if (SITE.cfBeacon && !/^[0-9a-f]{32}$/.test(SITE.cfBeacon)) throw new Error('cfBeacon must be a 32-char hex token');
+const CSP_SCRIPT = ["'self'", ...(SITE.cfBeacon ? ['https://static.cloudflareinsights.com'] : []), ...(SITE.adsenseClient ? ['https://pagead2.googlesyndication.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://*.google.com'] : []), ...(SITE.ga4 ? ['https://www.googletagmanager.com'] : [])];
 const CSP = [
   "default-src 'self'", `script-src ${CSP_SCRIPT.join(' ')}`, "style-src 'self' 'unsafe-inline'", "img-src 'self' data:" + (SITE.adsenseClient ? ' https:' : ''),
-  "font-src 'self'", "connect-src 'self' https://cloudflareinsights.com" + (SITE.ga4 ? ' https://*.google-analytics.com' : ''),
+  "font-src 'self'", "connect-src 'self'" + (SITE.cfBeacon ? ' https://cloudflareinsights.com' : '') + (SITE.ga4 ? ' https://*.google-analytics.com' : ''),
   SITE.adsenseClient ? "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com" : "frame-src 'none'",
   "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'", 'upgrade-insecure-requests',
 ].join('; ');
