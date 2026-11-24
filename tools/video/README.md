@@ -42,6 +42,10 @@ Record the preset in the table above when a video is made.
 - *a topic visual*: a payslip for maaş, a calendar for kira, a house for emlak/tapu, a car for MTV, a bank card for kredi
 - *thumbnail layout*: big question, a big number, or a before/after comparison
 
+**Topic motifs: a light touch, one video only (from the owner):** a themed motif (road dashes for MTV, a house for emlak,
+a payslip for maaş) belongs to that one video and stays an accent: the opening scene and the thumbnail, not every scene.
+Never carry one video's motif into the next videos; the next video picks its own (or none).
+
 ## Scheduling rule (from the owner)
 
 Build blocks are offered at 22:00 Istanbul time with a phone notification ("evet / atla").

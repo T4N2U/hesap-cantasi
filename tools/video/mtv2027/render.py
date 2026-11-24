@@ -3,7 +3,7 @@ Every figure comes from data.mjs (the site's engine). Until engine.js holds the 
 preview: 2026 amounts, the legal range of the 2027 increase (197 s. Kanun md. 10) and an ÖRNEK watermark.
 Re-render after the Cumhurbaşkanı kararı / tebliğ: `node data.mjs > data.json && python3 render.py long && python3 render.py short`.
 Visual variant: asphalt ground, number-plate cards (blue TR strip), road-yellow accent, cards drive in from the right,
-moving lane dashes. Music: acoustic-pluck. Long video ends with the 10 s end-screen scene (../endscreen.py).
+lane dashes in the opening scene only. Music: acoustic-pluck. Long video ends with the 10 s end-screen scene (../endscreen.py).
 Usage: python3 render.py long|short [stills]"""
 import json, os, subprocess, sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -108,7 +108,7 @@ def s_hook(fr, t, dur):
         fade(fr, t, 1.3, lambda d: T(d, (CX, 1260), '1. taksit: Ocak sonu', F('s', 46), MUTED, 'mm'))
 
 def s_how(fr, t, dur):
-    header(fr, 'MTV neye göre hesaplanır?', 'Otomobil, (I) sayılı tarife'); lanes(fr, t, ROADY)
+    header(fr, 'MTV neye göre hesaplanır?', 'Otomobil, (I) sayılı tarife')
     items = [('Motor hacmi', 'cm³ dilimi'), ('Aracın yaşı', 'model yılından'), ('Taşıt değeri', '2018 ve sonrası tescilde')]
     for i, (a, b) in enumerate(items):
         if L: x, y, w, h = M + i * 570, 420, 520, 300
@@ -122,7 +122,7 @@ def s_how(fr, t, dur):
     fade(fr, t, 2.6, lambda d: T(d, (CX, 820 if L else 1500), 'Yıllık tutar iki eşit taksitte ödenir', F('b', 42), YEL, 'mm'))
 
 def s_cars(fr, t, dur):
-    header(fr, f'{YIL} MTV: 3 örnek', 'Yıllık tutar ve taksit'); lanes(fr, t, ROADY)
+    header(fr, f'{YIL} MTV: 3 örnek', 'Yıllık tutar ve taksit')
     cars = D['cars']; mx = max(c['yillik'] for c in cars)
     for i, c in enumerate(cars):
         if L: y, x0, bx0, bx1 = 390 + i * 190, M, M + 620, R - 330
@@ -148,7 +148,6 @@ def s_cars(fr, t, dur):
                 if p >= 1: T(fr.d, (bx0, by + 100), f"2 taksit × {tl(c['taksit'])}", F('s', 30), MUTED, 'lm')
 
 def s_next(fr, t, dur):
-    lanes(fr, t, ROADY)
     if OFFICIAL:
         header(fr, f'{YIL} MTV %{tr(D["artis"], 2)} arttı', 'Cumhurbaşkanı kararıyla')
         return
@@ -173,7 +172,7 @@ def s_next(fr, t, dur):
                                     T(d, (CX, 1220), f"{YIL}'da {pc(D['artis'])} uygulandı.", F('b', 40), INK, 'mm')))
 
 def s_dates(fr, t, dur):
-    header(fr, 'Ne zaman ödenir?'); lanes(fr, t, ROADY)
+    header(fr, 'Ne zaman ödenir?')
     for i, (a, b) in enumerate((('1. taksit', 'Ocak sonuna kadar'), ('2. taksit', 'Temmuz sonuna kadar'))):
         if L: x, y, w, h = M + i * 860, 400, 800, 300
         else: x, y, w, h = M, 600 + i * 360, R - M, 300
