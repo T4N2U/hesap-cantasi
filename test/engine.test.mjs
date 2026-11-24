@@ -131,6 +131,9 @@ assert.equal(E.emlakVergisi({ deger: 5000000, muaf: true }).yillik, 0);
   assert.equal(E.mtv({ cc: 1300, modelYili: 2026, deger: 200000 }).yillik, 5750);
   assert.equal(E.mtv({ cc: 1995, modelYili: 2015, tescil2018: false }).yillik, 7510);
   assert.equal(E.mtv({ cc: 5000, modelYili: 2026, deger: 5e6 }).yillik, 274415);
+  // MTV md. 10 range: 2025 worked example (Ekonomi Gazetesi): yeniden değerleme %43,93 → %8,78 – %65,89
+  { const r = E.mtvSonrakiYil(1000, 43.93); assert.equal(Math.floor(r.altOran * 100) / 100, 8.78); assert.equal(Math.floor(r.ustOran * 100) / 100, 65.89); }
+  { const r = E.mtv({ cc: 1598, modelYili: 2023, deger: 450000 }).sonrakiYil; assert.equal(r.yil, 2027); assert.equal(r.oran, 27.83); assert.equal(r.senaryo, Math.floor(8264 * 1.2783)); }
 }
 {
   const k = E.kiraGeliriVergisi({ yillik: 240000 });

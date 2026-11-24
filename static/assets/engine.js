@@ -45,6 +45,9 @@ export const PARAMS = {
   // MTV (I) sayılı tarife, otomobil. [cc üst sınırı, [[taşıt değeri üst sınırı, [1-3, 4-6, 7-11, 12-15, 16+]], ...]]
   mtvYil: 2026,
   mtvArtis: 18.95, // 2026 MTV artış oranı (Cumhurbaşkanı kararı; yeniden değerleme %25,49 idi)
+  // 197 s. MTV Kanunu md. 10: tutarlar yeniden değerleme oranında artar; Cumhurbaşkanı bu oranın %20'sinden az, %50 fazlasından
+  // çok olmamak üzere yeni oran belirleyebilir (kanun metni; Ekonomi Gazetesi 2025 uygulaması: %43,93 → %8,78–%65,89).
+  mtvYetki: { alt: 0.2, ust: 1.5 },
   mtv2018: [
     [1300, [[309100, [5750, 4010, 2238, 1689, 593]], [541500, [6319, 4409, 2459, 1861, 655]], [Infinity, [6902, 4807, 2693, 2032, 706]]]],
     [1600, [[309100, [10016, 7510, 4354, 3077, 1181]], [541500, [11023, 8264, 4794, 3375, 1290]], [Infinity, [12028, 9012, 5220, 3685, 1408]]]],
@@ -314,6 +317,14 @@ export function dilimAraligi(lim, oran = PARAMS.yenidenDegerleme.oran) {
   return [Math.ceil(hi * 0.95), Math.floor(hi)];
 }
 
+// Next year's MTV is not known until the Cumhurbaşkanı kararı (late December). The law only fixes the range of the increase
+// rate (mtvYetki × yeniden değerleme oranı). 'senaryo' = this tariff amount if the yeniden değerleme oranı is applied as is
+// (a labelled scenario, not a forecast; the car's age group and value band can also change next year).
+export function mtvSonrakiYil(tutar, oran = PARAMS.yenidenDegerleme.oran) {
+  const Y = PARAMS.mtvYetki;
+  return { yil: PARAMS.yenidenDegerleme.uygulanacakYil, oran, altOran: +(oran * Y.alt).toFixed(3), ustOran: +(oran * Y.ust).toFixed(3), senaryo: Math.floor(tutar * (1 + oran / 100)) };
+}
+
 // MTV: otomobil, (I) sayılı tarife. modelYili → yaş grubu; 2018 ve sonrası tescilde taşıt değerine göre satır.
 export function mtv({ cc, modelYili, deger = 0, tescil2018 = true, yil = PARAMS.mtvYil }) {
   const yas = yil - modelYili + 1;
@@ -323,8 +334,7 @@ export function mtv({ cc, modelYili, deger = 0, tescil2018 = true, yil = PARAMS.
     const [, bands] = PARAMS.mtv2018.find(([lim]) => cc <= lim);
     tutar = bands.find(([lim]) => deger <= lim)[1][g];
   } else tutar = PARAMS.mtvEski.find(([lim]) => cc <= lim)[1][g];
-  const t2 = Math.floor(tutar * (1 + PARAMS.yenidenDegerleme.oran / 100));
-  return { yas, grup: ['1-3', '4-6', '7-11', '12-15', '16 ve üzeri'][g], yillik: tutar, taksit: tutar / 2, tahminiSonrakiYil: t2 };
+  return { yas, grup: ['1-3', '4-6', '7-11', '12-15', '16 ve üzeri'][g], yillik: tutar, taksit: tutar / 2, sonrakiYil: mtvSonrakiYil(tutar) };
 }
 
 // Konut kira geliri vergisi (götürü gider %15 istisnadan sonra uygulanır; ücret dışı gelir tarifesi).

@@ -167,7 +167,7 @@ ${go}</form>`,
     path: '/mtv-hesaplama/', short: 'MTV hesaplama', tile: `${P.mtvYil} motorlu taşıtlar vergisi`,
     h1: `MTV hesaplama ${P.mtvYil}: otomobil motorlu taşıtlar vergisi`,
     title: `MTV Hesaplama ${P.mtvYil} – Motor Hacmi, Yaş ve Taşıt Değerine Göre Motorlu Taşıtlar Vergisi`,
-    description: `${P.mtvYil} otomobil MTV tutarını motor hacmi, model yılı ve taşıt değerine göre hesaplayın. Ocak ve Temmuz taksitleri ile ${P.mtvYil + 1} tahmini.`,
+    description: `${P.mtvYil} otomobil MTV tutarını motor hacmi, model yılı ve taşıt değerine göre hesaplayın. Ocak ve Temmuz taksitleri, ${P.mtvYil + 1} artış aralığı.`,
     lead: 'Aracınızın motor hacmini, model yılını ve (2018 ve sonrası tescilde) ilk tescildeki taşıt değerini girin.',
     form: `<form class="calc" data-calc="mtv"><label>İlk tescil tarihi<select name="tescil"><option value="yeni">1 Ocak 2018 ve sonrası</option><option value="eski">31 Aralık 2017 ve öncesi</option></select></label><div class="row2"><label>Motor silindir hacmi (cm³)<input name="cc" inputmode="numeric" value="1598"></label><label>Model yılı<input name="yil" inputmode="numeric" value="2023"></label></div><div data-yeni>${money('deger', 'Taşıt değeri (ilk tescil, KDV hariç ₺)', '450.000')}</div>${go}</form>`,
     content: () => {
@@ -178,12 +178,12 @@ ${go}</form>`,
 <p>Yıllık vergi iki eşit taksitte ödenir: <b>Ocak</b> ve <b>Temmuz</b> ayları sonuna kadar.</p>
 <h3>${P.mtvYil} tarifesi (31.12.2017 ve öncesi tescilli otomobiller, yıllık TL)</h3><div class="tablewrap"><table><thead><tr><th>Motor hacmi (cm³)</th><th>1-3</th><th>4-6</th><th>7-11</th><th>12-15</th><th>16+</th></tr></thead><tbody>${rows}</tbody></table></div>
 <p>2018 ve sonrası tescilli araçlarda her motor hacmi diliminde taşıt değerine göre 2–3 ayrı satır vardır; hesaplama aracı doğru satırı seçer.</p>
-<h3>${yd.uygulanacakYil} MTV ne kadar olacak?</h3><p>MTV tutarları her yıl yeniden değerleme oranıyla artırılır, ancak Cumhurbaşkanı daha düşük bir oran belirleyebilir: ${P.mtvYil} için yeniden değerleme oranı %25,49 iken MTV <b>%${fmt(P.mtvArtis, 2)}</b> artırıldı. ${yd.uygulanacakYil} için yeniden değerleme oranı <b>%${fmt(yd.oran)}</b>; hesaplama aracındaki ${yd.uygulanacakYil} tutarı bu oranın <b>aynen uygulanması</b> hâlindeki üst sınırdır. Kesin tarife Aralık sonunda yayımlanınca bu sayfa güncellenir.</p>`;
+<h3>${yd.uygulanacakYil} MTV ne kadar olacak?</h3><p>Kanuna göre (197 s. MTV Kanunu md. 10) MTV tutarları her yıl yeniden değerleme oranında artar; ancak Cumhurbaşkanı bu oranın %20'sinden az, %50 fazlasından çok olmamak üzere farklı bir oran belirleyebilir. ${P.mtvYil} için yeniden değerleme oranı %25,49 iken MTV <b>%${fmt(P.mtvArtis, 2)}</b> artırıldı. ${yd.uygulanacakYil} için yeniden değerleme oranı <b>%${fmt(yd.oran)}</b>; dolayısıyla ${yd.uygulanacakYil} artışı <b>%${fmt(yd.oran * P.mtvYetki.alt)} ile %${fmt(yd.oran * P.mtvYetki.ust)}</b> arasında olabilir. Hesaplama aracındaki ${yd.uygulanacakYil} tutarı, oranın aynen uygulanması hâlindeki <b>senaryodur</b>, tahmin değildir. Kesin tarife Aralık sonunda yayımlanınca bu sayfa güncellenir.</p>`;
     },
     faq: [
       ['MTV ne zaman ödenir?', 'Yılda iki eşit taksitte: Ocak ve Temmuz ayları sonuna kadar.'],
       ['Taşıt değeri nedir?', '1 Ocak 2018 ve sonrası ilk kez tescil edilen araçlarda, ilk tescildeki KDV hariç satış bedelidir (faturada yazan tutar). Sonraki yıllarda bu sınırlar yeniden değerleme oranıyla güncellenir.'],
-      [`${P.yenidenDegerleme.uygulanacakYil} MTV zammı ne kadar?`, `Henüz belli değil. Yeniden değerleme oranı %${fmt(P.yenidenDegerleme.oran)}; Cumhurbaşkanı MTV için daha düşük oran belirleyebilir (${P.mtvYil}’da %${fmt(P.mtvArtis, 2)} uygulandı). Kesin oran Aralık sonunda açıklanır.`],
+      [`${P.yenidenDegerleme.uygulanacakYil} MTV zammı ne kadar?`, `Henüz belli değil. Yeniden değerleme oranı %${fmt(P.yenidenDegerleme.oran)}; Cumhurbaşkanı MTV için bu oranın %20'si ile %150'si arasında (%${fmt(P.yenidenDegerleme.oran * P.mtvYetki.alt)}–%${fmt(P.yenidenDegerleme.oran * P.mtvYetki.ust)}) başka bir oran belirleyebilir (${P.mtvYil}’da %${fmt(P.mtvArtis, 2)} uygulandı). Kesin oran Aralık sonunda açıklanır.`],
     ],
   },
   {
