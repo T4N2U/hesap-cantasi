@@ -66,3 +66,10 @@ Every long video ends with a **10 s closing scene designed for YouTube's end scr
 - After rendering, `render.py` prints `end screen from N s`. In Studio, go to Editor → End screen → Apply template →
   "1 video, 1 subscribe", and set both elements to start at N s. Use a specific related video if one is public, otherwise "Best for viewer".
 - Shorts have no end screens; for those, use the Short's "Related video" link (only public videos can be picked).
+
+## Tracked links (YouTube → site)
+
+Every hesapcantasi.com link in a video description or pinned comment gets
+`?utm_source=youtube&utm_campaign=<topic>` (Shorts: `<topic>-short`, pinned comments: `<topic>-comment`),
+e.g. `https://hesapcantasi.com/emlak-vergisi-hesaplama/?utm_source=youtube&utm_campaign=emlak`.
+Pages carry a canonical URL without the tag, so SEO is unaffected. The visits show up in Cloudflare → Web analytics.
