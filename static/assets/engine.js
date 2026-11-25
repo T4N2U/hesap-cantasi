@@ -36,7 +36,8 @@ export const PARAMS = {
   memurEmekli: {
     donem: 'Ocak 2027', kesin: false,
     aylar: [['Temmuz 2026', 1.78], ['Ağustos 2026', 1.84], ['Eylül 2026', 1.84], ['Ekim 2026', 2.58]],
-    kalan: ['Kasım 2026 (3 Aralık)', 'Aralık 2026 (5 Ocak)'],
+    // Release dates: TÜİK 2026 veri yayın takvimi (Kasım TÜFE → 3 Aralık 2026). The 2027 calendar isn't out yet, so no exact January date.
+    kalan: ['Kasım 2026 (3 Aralık)', 'Aralık 2026 (Ocak başı)'],
     tsOnceki: 7, tsYeni: 5, // memur toplu sözleşme zammı: 2026 2. yarı ve 2027 1. yarı (%)
   },
   // Yeniden değerleme oranı (VUK mükerrer 298): bir sonraki yılın vergi, harç ve ceza tutarlarına uygulanır.
