@@ -80,7 +80,7 @@ def s1(fr, t, dur):  # Tuş asks
     x = TX + (1 - prog(t, 0, .6)) * -500
     tus(fr.d, x, TY, 1.2, t, talking=1.0 < t < 3.2, blink=blink_at(t))
     calendar(fr.d, x + 95, TY + 40, 1.0)
-    bubble(fr, t, .9, f"{D['donem']}'da emekli ve memur zammı ne kadar olacak?", 80, 520, 920, 330, size=54)
+    bubble(fr, t, .9, f"{D['donem']}'de emekli ve memur zammı ne kadar olacak?", 80, 520, 920, 330, size=54)
 
 def months(fr, t, s0, y):
     d = fr.d; ay = [a.split()[0][:3] for a, _ in D['aylar']] + [k.split()[0][:3] for k in D['kalan']]

@@ -16,7 +16,7 @@ Only the arrangement changes. Keep it safe: calm tempo, soft attacks, gentle or 
 
 | Preset | Feel | Used by |
 |---|---|---|
-| `playful-marimba` | bouncy marimba arpeggio, shaker | kıdem tazminatı (long + Short) |
+| `playful-marimba` | bouncy marimba arpeggio, shaker | kıdem tazminatı (long + Short); Ocak 2027 emekli/memur zammı, Tuş & Eşittir (template) |
 | `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | işsizlik maaşı (long + Short) |
 | `acoustic-pluck` | nylon-guitar arpeggio, shaker | maaş: Aralık'ta maaşım neden düşüyor? (long + Short); MTV 2027 (template) |
 | `rhodes-groove` | warm electric piano, soft pop beat | emlak vergisi (long + Short); vergi dilimleri 2027 (template) |
@@ -77,3 +77,13 @@ Every hesapcantasi.com link in a video description or pinned comment gets
 `?utm_source=youtube&utm_campaign=<topic>` (Shorts: `<topic>-short`, pinned comments: `<topic>-comment`),
 e.g. `https://hesapcantasi.com/emlak-vergisi-hesaplama/?utm_source=youtube&utm_campaign=emlak`.
 Pages carry a canonical URL without the tag, so SEO is unaffected. The visits show up in Cloudflare → Web analytics.
+
+## Mascots: Tuş & Eşittir (chosen by the owner, 25 Nov 2026)
+
+Code: `mascot/tus_variants.py` (`keycap()`, `face()`); first episode `emekli2027/` (long `render_long.py`, Short `render.py`).
+- **Tuş** (C1): the gold key from the logo, main character, asks the viewer's question. No arms.
+- **Eşittir**: the green "=" key, partner, gives the answer.
+- **Episode props** (C5 idea): small topic props on Tuş for one episode only (emekli: reading glasses + OCA calendar).
+- Speech in **text bubbles** (Shorts are mostly watched muted). No voice unless the owner asks.
+- Characters stay out of the end-screen zones in the closing scene.
+- The owner reviews every mascot video before it is posted.

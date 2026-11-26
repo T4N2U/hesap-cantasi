@@ -1,4 +1,7 @@
+long/
 short/
 *.mp4
-*.jpg
+*-scenes.jpg
+scenes.jpg
+check.jpg
 __pycache__/
