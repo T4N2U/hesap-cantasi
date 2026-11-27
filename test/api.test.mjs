@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { TOOLS, runTool, coerce } from '../lib/tools.js';
 import { onRequest as rest } from '../functions/api/v1/[[path]].js';
 import { onRequest as mcp } from '../functions/mcp.js';
+import { FACTS } from '../lib/facts.js';
 
 const SAMPLES = {
   maas_brutten_nete: { brut: 50000 }, maas_netten_brute: { net: 40000 },
@@ -10,7 +11,7 @@ const SAMPLES = {
   issizlik_maasi: { ortalamaBrut: 60000, primGun: 900 }, fazla_mesai: { brut: 33030, saat: 10 }, bayram_mesaisi: { brut: 45000, gun: 3.5 },
   ikramiye: { brut: 75000, ikramiye: 75000 }, emekli_memur_zammi: { maas: 20000, tur: 'emekli' }, kira_artisi: { kira: 20000 },
   kira_geliri_vergisi: { yillik: 240000 }, kredi_taksit: { tutar: 100000, vade: 12, aylikFaiz: 4 }, mevduat_faizi: { tutar: 100000, yillikFaiz: 40, gun: 32 },
-  kdv: { tutar: 1000, oran: 20 }, tapu_harci: { bedel: 3000000 }, emlak_vergisi: { deger: 4000000 }, mtv: { cc: 1598, modelYili: 2023, deger: 450000 }, guncel_oranlar: {},
+  kdv: { tutar: 1000, oran: 20 }, tapu_harci: { bedel: 3000000 }, emlak_vergisi: { deger: 4000000 }, mtv: { cc: 1598, modelYili: 2023, deger: 450000 }, guncel_oranlar: {}, dogrulanmis_bilgiler: {},
 };
 for (const t of TOOLS) {
   assert.ok(SAMPLES[t.name], 'sample missing for ' + t.name);
@@ -57,4 +58,23 @@ assert.equal(j.result.isError, false); assert.ok(j.result.structuredContent.sonu
   assert.equal(put.status, 405);
   assert.equal(put.headers.get('x-frame-options'), 'DENY');
 }
+// Verified facts: every fact has ≥1 source URL, a check date and a calculator page; values match the engine.
+for (const f of FACTS) {
+  assert.ok(/^[a-z0-9-]{1,60}$/.test(f.id), f.id);
+  assert.ok(f.kaynaklar.length >= 1 && f.kaynaklar.every((k) => /^https:\/\//.test(k.url)), f.id + ' sources');
+  assert.ok(f.dogrulama.includes('kanun') || f.kaynaklar.length >= 2, f.id + ': needs the law text or two sources');
+  assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(f.kontrol) && f.sayfa.startsWith('https://hesapcantasi.com/'), f.id);
+}
+assert.ok(FACTS.find((f) => f.id === 'mtv-artis-yetkisi').ozet.includes('%5,57 – %41,75'));
+assert.equal(runTool('dogrulanmis_bilgiler', {}).sonuc.bilgiler.length, FACTS.length);
+assert.equal(runTool('dogrulanmis_bilgiler', { konu: 'ihbar-sureleri' }).sonuc.id, 'ihbar-sureleri');
+assert.ok(runTool('dogrulanmis_bilgiler', { konu: '../etc/passwd' }).error);   // enum only
+[, j] = await call({ jsonrpc: '2.0', id: 5, method: 'initialize', params: {} }); assert.ok(j.result.capabilities.resources);
+[, j] = await call({ jsonrpc: '2.0', id: 6, method: 'resources/list' }); assert.equal(j.result.resources.length, FACTS.length);
+[, j] = await call({ jsonrpc: '2.0', id: 7, method: 'resources/read', params: { uri: 'hesapcantasi://bilgi/ihbar-sureleri' } });
+assert.ok(j.result.contents[0].text.includes('8 hafta') && j.result.contents[0].text.includes('Kaynaklar'));
+for (const uri of ['hesapcantasi://bilgi/yok', 'hesapcantasi://bilgi/../x', 'file:///etc/passwd', 'x'.repeat(500), 42, null]) {
+  [, j] = await call({ jsonrpc: '2.0', id: 8, method: 'resources/read', params: { uri } }); assert.equal(j.error.code, -32002, String(uri).slice(0, 30));
+}
+[, j] = await call({ jsonrpc: '2.0', id: 9, method: '<script>' }); assert.ok(!JSON.stringify(j).includes('<script>'));   // no echo
 console.log('API and MCP tests passed (' + TOOLS.length + ' tools)');

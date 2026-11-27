@@ -29,3 +29,4 @@ Checklist for each change:
 ## Machine interface
 - `lib/tools.js` is the single registry of calculators for machines. `functions/api/v1/[[path]].js` (REST), `functions/mcp.js` (MCP, Streamable HTTP) and `dist/openapi.json` / `dist/llms.txt` / `/yapay-zeka/` are all generated from it.
 - When you add a calculator to the site, add it to `lib/tools.js` and to `SAMPLES` in `test/api.test.mjs`.
+- `lib/facts.js` holds **verified facts** for AI assistants (MCP resources `hesapcantasi://bilgi/{id}`, tool/REST `dogrulanmis_bilgiler`, llms.txt, /yapay-zeka/). Only facts from the law text or ≥2 independent sources, each with source URLs and a `kontrol` date; open questions never go in. Read numbers from PARAMS so facts and calculators can't disagree; when PARAMS change, re-check the affected facts.

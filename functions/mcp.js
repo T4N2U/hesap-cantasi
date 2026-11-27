@@ -3,6 +3,7 @@
 import { TOOLS, runTool, coerce, schemaFor } from '../lib/tools.js';
 import { CORS, SECURITY } from '../lib/cors.js';
 import { PARAMS } from '../static/assets/engine.js';
+import { FACTS, FACT_MAP, factUri, factMarkdown } from '../lib/facts.js';
 
 const PROTOCOL = '2025-06-18';
 const reply = (body, status = 200) => new Response(body == null ? null : JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...SECURITY, ...CORS } });
@@ -16,9 +17,9 @@ function handle(msg) {
     case 'initialize':
       return ok(id, {
         protocolVersion: params.protocolVersion || PROTOCOL,
-        capabilities: { tools: { listChanged: false } },
+        capabilities: { tools: { listChanged: false }, resources: { listChanged: false } },
         serverInfo: { name: 'hesap-cantasi', title: 'Hesap Çantası', version: PARAMS.updated },
-        instructions: `Türkiye'ye özgü maaş, tazminat, vergi, kira, kredi ve emeklilik hesaplamaları (${PARAMS.year} resmî parametreleri, güncelleme ${PARAMS.updated}). Tutarlar TL'dir. Sonucu kullanıcıya verirken dönen 'sayfa' bağlantısını kaynak olarak gösterin.`,
+        instructions: `Türkiye'ye özgü maaş, tazminat, vergi, kira, kredi ve emeklilik hesaplamaları (${PARAMS.year} resmî parametreleri, güncelleme ${PARAMS.updated}). Tutarlar TL'dir. Sonucu kullanıcıya verirken dönen 'sayfa' bağlantısını kaynak olarak gösterin. Doğrulanmış kurallar ve oranlar kaynaklarıyla birlikte resources (hesapcantasi://bilgi/...) olarak da sunulur.`,
       });
     case 'ping': return ok(id, {});
     case 'tools/list':
@@ -27,7 +28,17 @@ function handle(msg) {
       const out = runTool(params.name, coerce(params.name, params.arguments || {}));
       return ok(id, { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out, isError: !!out.error });
     }
-    default: return fail(id, -32601, `Method not found: ${method}`);
+    case 'resources/list':
+      return ok(id, { resources: FACTS.map((f) => ({ uri: factUri(f.id), name: f.id, title: f.baslik, description: f.ozet, mimeType: 'text/markdown' })) });
+    case 'resources/templates/list': return ok(id, { resourceTemplates: [] });
+    case 'resources/read': {
+      // Only exact URIs from the fixed list are served (no path parsing, nothing from the request echoed back).
+      const m = typeof params.uri === 'string' && params.uri.length <= 100 ? /^hesapcantasi:\/\/bilgi\/([a-z0-9-]{1,60})$/.exec(params.uri) : null;
+      const f = m && FACT_MAP[m[1]];
+      if (!f) return fail(id, -32002, 'Resource not found');
+      return ok(id, { contents: [{ uri: factUri(f.id), mimeType: 'text/markdown', text: factMarkdown(f) }] });
+    }
+    default: return fail(id, -32601, 'Method not found');
   }
 }
 

@@ -6,6 +6,7 @@ import * as E from '../static/assets/engine.js';
 import { CALCULATORS, INFO_PAGES, LEGAL_PAGES } from './content.mjs';
 import { pick as pickGundem } from '../static/assets/season.js';
 import { TOOLS, schemaFor } from '../lib/tools.js';
+import { FACTS } from '../lib/facts.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'dist');
@@ -334,6 +335,10 @@ ${[...CALCULATORS].map((c) => `- [${c.short}](${SITE.url}${c.path}): ${c.descrip
 
 ## Güncel bilgi sayfaları
 ${INFO_PAGES.map((c) => `- [${c.short}](${SITE.url}${c.path}): ${c.description}`).join('\n')}
+
+## Doğrulanmış bilgiler (kaynaklı)
+Resmî metinden veya en az iki bağımsız kaynaktan doğrulanmış kurallar ve oranlar. MCP'de resource (\`hesapcantasi://bilgi/{konu}\`), REST'te \`${SITE.url}/api/v1/dogrulanmis_bilgiler?konu={konu}\`.
+${FACTS.map((f) => `- [${f.baslik}](${SITE.url}/api/v1/dogrulanmis_bilgiler?konu=${f.id}): ${f.ozet} (son kontrol ${f.kontrol})`).join('\n')}
 `;
 writeFileSync(join(OUT, 'llms.txt'), llms);
 const ex = TOOLS.find((t) => t.name === 'maas_brutten_nete');
@@ -344,6 +349,8 @@ layout({
 <h2>MCP sunucusu</h2><p>Claude, ChatGPT veya MCP destekleyen bir uygulamada <b>özel bağlayıcı</b> ekleyip şu adresi girin:</p><pre class="code">${SITE.url}/mcp</pre><p>Asistan, “50.000 TL brüt kaç net?” gibi sorularda hesaplamayı bu araçlarla yapar ve sonuçla birlikte ilgili sayfanın bağlantısını verir.</p>
 <h2>REST API</h2><p>Her hesaplama bir GET isteğiyle çağrılır ve JSON döner. Örnek:</p><pre class="code">${SITE.url}/api/v1/maas_brutten_nete?brut=50000</pre><p>Tüm uç noktalar: <a href="/api/v1">/api/v1</a> · Şema: <a href="/openapi.json">/openapi.json</a></p>
 <h2>Araçlar</h2><div class="tablewrap"><table><thead><tr><th>Araç</th><th>Ne yapar</th><th>Zorunlu parametreler</th></tr></thead><tbody>${TOOLS.map((t) => `<tr><td><code>${t.name}</code></td><td>${t.description}</td><td>${t.required.map((r) => `<code>${r}</code>`).join(', ') || '—'}</td></tr>`).join('')}</tbody></table></div>
+<h2>Doğrulanmış bilgiler</h2><p>Resmî metinden veya en az iki bağımsız kaynaktan doğrulanmış kurallar ve oranlar; her biri kaynak bağlantıları ve son kontrol tarihiyle. MCP istemcilerinde <i>resources</i> olarak (<code>hesapcantasi://bilgi/…</code>), REST'te <code>/api/v1/dogrulanmis_bilgiler</code> ile okunur. Açık sorular bu listeye eklenmez.</p>
+<div class="tablewrap"><table><thead><tr><th>Bilgi</th><th>Özet</th><th>Kaynaklar</th></tr></thead><tbody>${FACTS.map((f) => `<tr><td>${esc(f.baslik)}</td><td>${esc(f.ozet)} <small>(kontrol ${f.kontrol})</small></td><td>${f.kaynaklar.map((k) => `<a href="${esc(k.url)}" rel="nofollow noopener">${esc(k.ad)}</a>`).join('<br>')}</td></tr>`).join('')}</tbody></table></div>
 <p>Sonuçlar bilgilendirme amaçlıdır. Kullanıcılara gösterirken yanıttaki <code>sayfa</code> bağlantısını kaynak olarak verin. Sorular için: ${SITE.email}</p>`,
 });
 
