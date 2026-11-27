@@ -1,0 +1,5 @@
+long/
+short/
+*-scenes.jpg
+__pycache__/
+*.mp4

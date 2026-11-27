@@ -17,7 +17,7 @@ Only the arrangement changes. Keep it safe: calm tempo, soft attacks, gentle or 
 | Preset | Feel | Used by |
 |---|---|---|
 | `playful-marimba` | bouncy marimba arpeggio, shaker | kıdem tazminatı (long + Short); Ocak 2027 emekli/memur zammı, Tuş & Eşittir (template) |
-| `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | işsizlik maaşı (long + Short) |
+| `lofi-piano` | slow swung piano chords, soft kick/snare, light vinyl | işsizlik maaşı (long + Short); ihbar tazminatı (long + Short) |
 | `acoustic-pluck` | nylon-guitar arpeggio, shaker | maaş: Aralık'ta maaşım neden düşüyor? (long + Short); MTV 2027 (template) |
 | `rhodes-groove` | warm electric piano, soft pop beat | emlak vergisi (long + Short); vergi dilimleri 2027 (template) |
 | `musicbox-light` | music box over a pad, no drums | ikramiye (long + Short) |
