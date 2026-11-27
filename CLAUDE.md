@@ -19,7 +19,8 @@ Checklist for each change:
 - **Headers:** the site CSP, HSTS, frame and permissions headers come from `src/build.mjs` (`_headers`); API/MCP responses use `SECURITY` in `lib/cors.js`. When adding a third-party script (AdSense, GA4), allow only its exact hosts in the CSP.
 - **Errors:** don't expose stack traces or internal messages.
 - **Edge protection (Cloudflare dashboard, not in the repo):** rate-limiting rule "Rate limit /api and /mcp" (per IP, >30 requests / 10 s → block 10 s; Free plan allows 1 rule, tested 24 Nov 2026). DMARC `p=quarantine` with Cloudflare DMARC reports; SPF + DKIM from Email Routing. Nothing sends mail as @hesapcantasi.com; if that changes, add the sender to SPF/DKIM before it sends.
-- **Secrets:** none in the repo, ever. The API and MCP server are read-only, need no keys and store nothing; if that ever changes, add auth and rate limits first.
+- **Secrets:** none in the repo, ever. The API and MCP server are read-only and need no keys.
+- **Usage analytics (owner-approved 27 Nov 2026):** the API/MCP store **anonymous usage counts only** (`lib/usage.js` → Workers Analytics Engine binding `HC_USAGE`): channel, tool/fact name from our fixed lists, a sanitised client label, a coarse user-agent family, 2-letter country, ok/error. Never IPs, raw user agents, request arguments or free text; tests in `test/api.test.mjs` enforce this. Reading the data uses a short-lived, read-only API token from the owner, never stored in the repo or a scheduled task.
 - **Dependencies:** keep vendored libraries patched. Known open item: `static/assets/vendor/xlsx.mini.min.js` is SheetJS 0.18.5 (CVE-2023-30533, CVE-2024-22363 affect *parsing* files; we only *write* exports, so exposure is low) — upgrade to 0.20.3 from cdn.sheetjs.com when reachable.
 - **Tests:** add a test for each validation rule you add (`test/api.test.mjs`).
 

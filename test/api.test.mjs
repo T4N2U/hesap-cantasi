@@ -4,6 +4,7 @@ import { TOOLS, runTool, coerce } from '../lib/tools.js';
 import { onRequest as rest } from '../functions/api/v1/[[path]].js';
 import { onRequest as mcp } from '../functions/mcp.js';
 import { FACTS } from '../lib/facts.js';
+import { uaFamily, clientLabel } from '../lib/usage.js';
 
 const SAMPLES = {
   maas_brutten_nete: { brut: 50000 }, maas_netten_brute: { net: 40000 },
@@ -77,4 +78,27 @@ for (const uri of ['hesapcantasi://bilgi/yok', 'hesapcantasi://bilgi/../x', 'fil
   [, j] = await call({ jsonrpc: '2.0', id: 8, method: 'resources/read', params: { uri } }); assert.equal(j.error.code, -32002, String(uri).slice(0, 30));
 }
 [, j] = await call({ jsonrpc: '2.0', id: 9, method: '<script>' }); assert.ok(!JSON.stringify(j).includes('<script>'));   // no echo
+// Usage analytics: only fixed labels are written; no arguments, IPs or raw strings (privacy rule).
+{
+  const points = []; const env = { HC_USAGE: { writeDataPoint: (p) => points.push(p) } };
+  const req = (body, ua = 'Claude-User/1.0 (+https://anthropic.com)') => new Request('https://hesapcantasi.com/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': ua, 'CF-Connecting-IP': '203.0.113.7' }, body: JSON.stringify(body) });
+  await mcp({ request: req({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { clientInfo: { name: 'Claude-AI' } } }), env });
+  await mcp({ request: req({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'maas_brutten_nete', arguments: { brut: 123456.78 } } }), env });
+  await mcp({ request: req({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'evil<script>', arguments: {} } }, 'Mozilla/5.0 secret-token-xyz'), env });
+  await mcp({ request: req({ jsonrpc: '2.0', id: 4, method: 'initialize', params: { clientInfo: { name: 'Tansu Çolakoğlu <me@x.com>' } } }), env });
+  await rest({ request: new Request('https://hesapcantasi.com/api/v1/kdv?tutar=98765&oran=20', { headers: { 'User-Agent': 'python-requests/2.31' } }), params: { path: ['kdv'] }, env });
+  const all = JSON.stringify(points);
+  for (const bad of ['123456', '98765', '203.0.113.7', 'secret-token', '<script>', 'Tansu', 'me@x.com', 'Mozilla/5.0']) assert.ok(!all.includes(bad), 'leaked: ' + bad);
+  assert.equal(points.length, 5);
+  assert.deepEqual(points[0].blobs.slice(0, 4), ['mcp', 'initialize', 'claude-ai', 'claude-user']);
+  assert.deepEqual(points[1].blobs.slice(0, 2), ['mcp', 'maas_brutten_nete']);
+  assert.deepEqual([points[2].blobs[1], points[2].blobs[3], points[2].blobs[5]], ['unknown', 'browser', 'error']);
+  assert.equal(points[3].blobs[2], 'other');
+  assert.deepEqual([points[4].blobs[0], points[4].blobs[1], points[4].blobs[3]], ['rest', 'kdv', 'python']);
+  assert.equal(uaFamily(''), 'none'); assert.equal(clientLabel(''), 'unknown'); assert.equal(clientLabel('x'.repeat(80)), 'other');
+  // no binding (tests/previews): handlers still answer normally
+  const r = await mcp({ request: req({ jsonrpc: '2.0', id: 5, method: 'ping' }), env: {} }); assert.equal(r.status, 200);
+  // a throwing binding must not break the answer
+  const r2 = await mcp({ request: req({ jsonrpc: '2.0', id: 6, method: 'tools/list' }), env: { HC_USAGE: { writeDataPoint: () => { throw new Error('x'); } } } }); assert.equal(r2.status, 200);
+}
 console.log('API and MCP tests passed (' + TOOLS.length + ' tools)');
